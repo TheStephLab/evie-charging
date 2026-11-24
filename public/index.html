@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EVIE · Office EV charging</title>
+  <meta name="description" content="EVIE — fair queueing and swaps for the office EV chargers.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <h1><span aria-hidden="true">⚡</span> EVIE <small>office EV charging</small></h1>
+    <span id="conn" class="conn" role="status">Connecting…</span>
+  </header>
+
+  <main id="main">
+    <section id="demo" class="demo" aria-labelledby="demo-h" hidden>
+      <div>
+        <h2 id="demo-h">Demo mode</h2>
+        <p>This copy of EVIE runs entirely in your browser. Data stays on this device and is shared between its tabs. Run the EVIE server for a shared office queue. Use fast-forward to see swap requests and notifications without waiting 2 hours.</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" data-action="ff">Fast-forward 30 min</button>
+        <button type="button" class="btn ghost" data-action="reset-demo">Reset demo</button>
+      </div>
+    </section>
+
+    <div id="alerts" aria-live="assertive"></div>
+
+    <section aria-labelledby="chargers-h">
+      <h2 id="chargers-h">Chargers</h2>
+      <div id="chargers" class="grid"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section aria-labelledby="queue-h">
+      <div class="row">
+        <h2 id="queue-h">Queue</h2>
+        <div class="actions">
+          <button type="button" class="btn ghost" data-action="guest">Add someone else</button>
+          <button id="join-queue" type="button" class="btn primary" data-action="queue">Join queue</button>
+        </div>
+      </div>
+      <p id="queue-hint" class="muted"></p>
+      <ol id="queue" class="queue"></ol>
+    </section>
+
+    <section class="panel" aria-labelledby="notify-h">
+      <h2 id="notify-h"><span aria-hidden="true">🔔</span> Notifications</h2>
+      <p id="notify-status" class="muted"></p>
+      <div class="actions">
+        <button id="notify-btn" type="button" class="btn primary" hidden>Enable notifications</button>
+        <button id="notify-test" type="button" class="btn" hidden>Send a test notification</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="rules-h">
+      <details>
+        <summary id="rules-h">How EVIE decides</summary>
+        <ul id="rules" class="rules"></ul>
+      </details>
+    </section>
+  </main>
+
+  <dialog id="form-dialog" aria-labelledby="form-title">
+    <form id="entry-form" novalidate>
+      <h2 id="form-title">Check in</h2>
+      <p id="form-sub" class="muted"></p>
+      <label><span id="name-label">Your name</span>
+        <input name="name" autocomplete="name" maxlength="40" required>
+      </label>
+      <div class="two">
+        <label>Current range (miles)
+          <input name="currentRange" type="number" inputmode="numeric" min="0" max="1000" required>
+        </label>
+        <label>Target range (miles)
+          <input name="targetRange" type="number" inputmode="numeric" min="0" max="1000" required>
+        </label>
+      </div>
+      <p id="form-estimate" class="estimate" aria-live="polite"></p>
+      <p id="form-error" class="error" role="alert"></p>
+      <div class="actions">
+        <button type="button" class="btn ghost" data-action="close-form">Cancel</button>
+        <button type="submit" class="btn primary" id="form-submit">Check in</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EVIE</title>
+  <script>
+    // GitHub Pages fallback: sticker links like /evie-charging/c/2 → /evie-charging/?charger=2
+    const m = location.pathname.match(/^(.*\/)c\/(\d{1,2})\/?$/);
+    if (m) location.replace(m[1] + '?charger=' + m[2]);
+  </script>
+</head>
+<body style="font-family: system-ui, sans-serif; padding: 2rem;">
+  <p>Page not found. <a id="home" href="./">Open EVIE</a></p>
+  <script>
+    if (location.hostname.endsWith('github.io')) {
+      document.getElementById('home').href = '/' + (location.pathname.split('/')[1] || '') + '/';
+    }
+  </script>
+</body>
+</html>
