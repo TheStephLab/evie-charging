@@ -75,7 +75,7 @@ test('checking out offers the charger to the queue head; others cannot take it',
   joinQueue(s, { clientId: id(5), name: 'E', currentRange: 10, targetRange: 150 }, T0 + 11 * MIN, c);
   assert.equal(s.queue[0].name, 'E', 'urgent (low range) entries go first');
   const events = checkOut(s, { clientId: id(2), chargerId: 2 }, T0 + 20 * MIN, c);
-  assert.deepEqual(events.find((e) => e.type === 'offer'), { type: 'offer', chargerId: 2, name: 'E', clientId: id(5) });
+  assert.deepEqual(events.find((e) => e.type === 'offer'), { type: 'offer', chargerId: 2, name: 'E', clientId: id(5), email: null });
   assert.throws(
     () => checkIn(s, { clientId: id(4), name: 'D', chargerId: 2, currentRange: 40, targetRange: 150 }, T0 + 21 * MIN, c),
     /reserved for E/,
@@ -156,4 +156,49 @@ test('someone who was added can claim their reserved charger from their own phon
   checkIn(s, { clientId: id(8), name: 'dev', chargerId: 3, currentRange: 40, targetRange: 150 }, T0 + 6 * MIN, c);
   assert.equal(s.chargers[2].session.clientId, id(8));
   assert.equal(s.queue.length, 0);
+});
+
+const basic = { ...c, advancedScheduling: false };
+
+test('basic mode: first come first served, nobody is asked to swap', () => {
+  const s = fullOffice();
+  joinQueue(s, { clientId: id(4), name: 'D', currentRange: 100, targetRange: 150 }, T0, basic);
+  joinQueue(s, { clientId: id(5), name: 'E', currentRange: 5, targetRange: 150 }, T0 + 1, basic);
+  assert.deepEqual(s.queue.map((e) => e.name), ['D', 'E'], 'low range does not jump the queue');
+  const events = tick(s, T0 + 300 * MIN, basic);
+  assert.equal(events.filter((e) => e.type === 'swap-request').length, 0);
+  assert.equal(publicState(s, T0, basic).queue[1].urgent, false);
+});
+
+test('turning advanced scheduling off cancels outstanding swap requests', () => {
+  const s = fullOffice();
+  joinQueue(s, { clientId: id(4), name: 'D', currentRange: 40, targetRange: 150 }, T0, c);
+  tick(s, T0 + 121 * MIN, c);
+  const events = tick(s, T0 + 122 * MIN, basic);
+  assert.equal(events.filter((e) => e.type === 'swap-cancelled').length, 1);
+  assert.ok(s.chargers.every((ch) => !ch.session.swapRequestedAt));
+});
+
+test('email follows you from the queue to the charger, is in events, and is never published', () => {
+  const s = fullOffice();
+  joinQueue(s, { clientId: id(4), name: 'D', currentRange: 40, targetRange: 150, email: 'd@example.com' }, T0, c);
+  const events = checkOut(s, { clientId: id(2), chargerId: 2 }, T0 + MIN, c);
+  assert.equal(events.find((e) => e.type === 'offer').email, 'd@example.com');
+  checkIn(s, { clientId: id(4), name: 'D', chargerId: 2, currentRange: 40, targetRange: 150 }, T0 + 2 * MIN, c);
+  assert.equal(s.chargers[1].session.email, 'd@example.com');
+  const pub = JSON.stringify(publicState(s, T0, c));
+  assert.ok(!pub.includes('d@example.com'));
+  assert.ok(pub.includes('"hasEmail":true'));
+  assert.throws(() => joinQueue(s, { clientId: id(7), name: 'X', currentRange: 1, targetRange: 9, email: 'nope' }, T0, c), /valid email/);
+});
+
+test('emails are ignored when email is disabled, and adding others can be switched off', () => {
+  const s = fullOffice();
+  const off = { ...c, emailEnabled: false, allowProxy: false };
+  joinQueue(s, { clientId: id(4), name: 'D', currentRange: 40, targetRange: 150, email: 'd@example.com' }, T0, off);
+  assert.equal(s.queue[0].email, null);
+  assert.throws(
+    () => joinQueue(s, { clientId: id(4), name: 'G', currentRange: 40, targetRange: 150, forSomeoneElse: true }, T0, off),
+    /turned off/,
+  );
 });

@@ -14,7 +14,7 @@ Each charger gets a 60 × 100 mm sticker. People **scan the QR code** or **tap t
 | NFC tap zone | A dashed 19 mm circle with a phone-and-waves icon and **Tap here · NFC**. Put the chip directly behind this circle. |
 | Footer | The short URL in plain text, so people can check the domain before trusting the code |
 
-Colours match the app: teal `#0f766e`, with ink `#14181f` on white for maximum scan contrast. The tap icon is a generic phone-and-waves mark. It doesn't use the NFC Forum "N-Mark" or the EMVCo contactless logo, because both are trademarks with usage rules.
+Colours match the app: AVEVA interaction blue `#4D5EE0` and Roboto, with black on white for maximum scan contrast. The tap icon is a generic phone-and-waves mark. It doesn't use the NFC Forum "N-Mark" or the EMVCo contactless logo, because both are trademarks with usage rules.
 
 ## Generate
 

@@ -31,11 +31,11 @@ if (!(COUNT >= 1 && COUNT <= 99)) {
   process.exit(1);
 }
 
-const TEAL = '#0f766e';
-const TINT = '#ccfbf1';
-const INK = '#14181f';
-const MUTED = '#5b6472';
-const FONT = "'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+const TEAL = '#4D5EE0'; // AVEVA interaction blue
+const TINT = '#EAECFB';
+const INK = '#000000';
+const MUTED = '#515559';
+const FONT = "'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 const BOLT = 'M36 8 16 36h14l-4 20 22-30H34z'; // same mark as public/icon.svg (64×64 box)
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);

@@ -46,7 +46,10 @@ function remoteBackend({ clientId, onView, onStatus }) {
 
 async function localBackend({ clientId, onView, onStatus }) {
   const S = await import('./scheduler.js');
-  const cfg = S.DEFAULT_CONFIG;
+  const Settings = await import('./settings.js');
+  const CAPS = { smtp: false, webhook: false }; // no server: no email or webhook
+  const settings = () => Settings.loadSettings(JSON.parse(localStorage.getItem(Settings.DEMO_SETTINGS_KEY) || 'null'), S.DEFAULT_CONFIG);
+  const config = () => Settings.effectiveConfig(S.DEFAULT_CONFIG, settings(), CAPS);
   const KEY = 'evie.demo.state';
   const SKEW = 'evie.demo.skew';
   const FNS = {
@@ -58,9 +61,10 @@ async function localBackend({ clientId, onView, onStatus }) {
   };
   const skew = () => Number(localStorage.getItem(SKEW)) || 0;
   const clock = () => Date.now() + skew();
-  const tick = (s, _input, now) => S.tick(s, now, cfg);
+  const tick = (s, _input, now, c) => S.tick(s, now, c);
 
   const load = () => {
+    const cfg = config();
     try {
       const s = JSON.parse(localStorage.getItem(KEY));
       if (s && s.day === S.dayKey(clock()) && Array.isArray(s.chargers) && s.chargers.length === cfg.chargers) return s;
@@ -69,16 +73,23 @@ async function localBackend({ clientId, onView, onStatus }) {
     }
     return S.createState(cfg, clock());
   };
-  const publish = (state) => onView({ ...S.publicState(state, clock(), cfg), me: clientId, demo: true });
+  const publish = (state) =>
+    onView({
+      ...S.publicState(state, clock(), config()),
+      features: Settings.publicFeatures(settings(), CAPS),
+      me: clientId,
+      demo: true,
+    });
   const run = (fn, input) => {
     const state = load(); // re-read so other tabs' changes are never overwritten
-    fn(state, input, clock(), cfg);
+    fn(state, input, clock(), config());
     localStorage.setItem(KEY, JSON.stringify(state));
     publish(state);
   };
 
   addEventListener('storage', (e) => {
-    if (e.key === KEY || e.key === SKEW) publish(load());
+    if (e.key === Settings.DEMO_SETTINGS_KEY) run(tick, {});
+    else if (e.key === KEY || e.key === SKEW) publish(load());
   });
   setInterval(() => run(tick, {}), 15_000);
   onStatus(true);

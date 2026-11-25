@@ -1,4 +1,7 @@
 import { connectBackend } from './backend.js';
+import { initShell } from './shell.js';
+
+initShell();
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (v) =>
@@ -37,7 +40,7 @@ function fmtCountdown(ts) {
   const left = ts - now();
   if (left <= 0) return 'now';
   const s = Math.ceil(left / 1000);
-  return s >= 3600 ? mins(left) : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  return s >= 3600 ? mins(left) : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
 }
 
 // ---- backend -------------------------------------------------------------------
@@ -58,8 +61,9 @@ function setOnline(online) {
   app.online = online;
   const el = $('#conn');
   const demo = app.backend?.mode === 'demo' || app.view?.demo;
-  el.textContent = online ? (demo ? 'Demo' : 'Live') : 'Offline — showing last known state';
-  el.classList.toggle('offline', !online);
+  el.textContent = online ? (demo ? 'Demo' : 'Live') : 'Offline';
+  el.title = online ? '' : 'Offline — showing the last known state';
+  el.dataset.state = online ? (demo ? 'demo' : 'live') : app.backend ? 'offline' : 'connecting';
   document.querySelectorAll('main [data-action]').forEach((b) => {
     b.disabled = !online;
   });
@@ -94,7 +98,36 @@ function handleDeepLink() {
 
 // ---- rendering -----------------------------------------------------------------
 const youTag = (rec, me) =>
-  rec.owner === me ? '<span class="you">You</span>' : rec.addedBy === me ? '<span class="you alt">Added by you</span>' : '';
+  rec.owner === me ? '<span class="tag">You</span>' : rec.addedBy === me ? '<span class="tag outline">Added by you</span>' : '';
+
+function renderMetrics(v) {
+  const t = now();
+  const free = v.chargers.filter((ch) => ch.status === 'free').length;
+  const charging = v.chargers.filter((ch) => ch.session).length;
+  const waiting = v.queue.length;
+  let next = 'Now';
+  let nextNote = 'A charger is free';
+  if (!free) {
+    const adv = v.features?.advancedScheduling;
+    const times = v.chargers.map((ch) =>
+      ch.session ? (ch.session.swapRequestedAt ? t : Math.max(t, adv ? ch.session.eligibleAt : ch.session.reachTargetAt)) : (ch.reservedFor?.expiresAt ?? t),
+    );
+    const soonest = Math.min(...times);
+    next = soonest - t < 60_000 ? 'Soon' : clock(soonest);
+    nextNote = waiting ? `Estimate; ${waiting} ahead of a new arrival` : 'Estimated next charger';
+  }
+  const metric = (title, value, note, suffix = '') =>
+    `<div class="metric"><div class="metric-top">${title}</div><strong>${value}${suffix ? `<small>${suffix}</small>` : ''}</strong><small>${note}</small></div>`;
+  $('#metrics').innerHTML = [
+    metric('Free now', free, free ? 'Plug in and check in' : 'All chargers in use', `of ${v.chargers.length}`),
+    metric('Charging', charging, `${v.config.chargerKw} kW ≈ ${Math.round(v.config.chargerKw * v.config.milesPerKwh)} mi per hour`),
+    metric('In the queue', waiting, waiting ? 'Waiting for a charger' : 'Nobody waiting'),
+    metric('Next charger', next, nextNote),
+  ].join('');
+  $('#chargers-count').textContent = `${free} of ${v.chargers.length} free`;
+  $('#queue-count').textContent = waiting ? `${waiting} waiting` : '';
+  $('#updated').textContent = `Updated ${clock(v.now)}`;
+}
 
 function render() {
   const v = app.view;
@@ -110,7 +143,8 @@ function render() {
   $('#chargers').innerHTML = v.chargers.map((ch) => chargerCard(ch, me, mine)).join('');
   $('#queue').innerHTML = v.queue.length
     ? v.queue.map((q) => queueItem(q, me)).join('')
-    : '<li class="empty"><span></span><span class="muted">Nobody waiting.</span><span></span></li>';
+    : '<tr class="empty"><td colspan="5">Nobody waiting.</td></tr>';
+  renderMetrics(v);
 
   const freeNow = v.chargers.some((ch) => ch.status === 'free');
   $('#join-queue').hidden = Boolean(mine || myEntry);
@@ -123,6 +157,10 @@ function render() {
         : 'All chargers are busy. Join the queue and EVIE will tell you when one is yours.';
 
   $('#demo').hidden = !v.demo;
+  const f = v.features ?? {};
+  $('#guest-btn').hidden = !f.addSomeoneElse;
+  $('#notify-panel').hidden = !f.browserNotifications;
+  document.querySelectorAll('[data-nav="notify"]').forEach((a) => (a.hidden = !f.browserNotifications));
   renderAlerts(v, mine, myEntry);
   renderRules(v.config);
   setOnline(app.online);
@@ -134,6 +172,7 @@ function chargerCard(ch, me, mine) {
   const isMine = s?.owner === me;
   const manages = s && (isMine || s.addedBy === me);
   const label = { free: 'Free', reserved: 'Reserved', charging: 'Charging', swap: 'Swap requested' }[ch.status];
+  const tone = { free: 'success', reserved: 'amber', charging: 'blue', swap: 'red' }[ch.status];
   let body = '';
   let actions = '';
 
@@ -155,7 +194,11 @@ function chargerCard(ch, me, mine) {
       const due = s.swapRequestedAt + app.view.config.swapGraceMinutes * 60_000;
       note = `<p class="note warn">${who}${s.swapFor ? ` for ${esc(s.swapFor)}` : ''} — ${due > t ? `within ${countdown(due)}` : 'overdue'}.</p>`;
     } else if (s.reachedTarget) {
-      note = '<p class="note">Target reached — will be asked to swap if someone is waiting.</p>';
+      note = app.view.features?.advancedScheduling
+        ? '<p class="note">Target reached — will be asked to swap if someone is waiting.</p>'
+        : '<p class="note">Target reached — please unplug if someone is waiting.</p>';
+    } else if (!app.view.features?.advancedScheduling) {
+      note = '';
     } else if (t < s.protectedUntil) {
       note = `<p class="note">Guaranteed until ${clock(s.protectedUntil)}.</p>`;
     } else {
@@ -175,8 +218,8 @@ function chargerCard(ch, me, mine) {
   }
 
   const highlight = manages || ch.reservedFor?.owner === me || ch.reservedFor?.addedBy === me;
-  return `<article class="charger ${ch.status}${highlight ? ' mine' : ''}" aria-labelledby="ch-${ch.id}">
-    <header><h3 id="ch-${ch.id}">Charger ${ch.id}</h3><span class="badge">${label}</span></header>
+  return `<article class="charger-card${highlight ? ' mine' : ''}" data-status="${ch.status}" aria-labelledby="ch-${ch.id}">
+    <header><h3 id="ch-${ch.id}">Charger ${ch.id}</h3><span class="badge ${tone}">${label}</span></header>
     ${body}
     <div class="actions">${actions}</div>
   </article>`;
@@ -185,27 +228,25 @@ function chargerCard(ch, me, mine) {
 function queueItem(q, me) {
   const manages = q.owner === me || q.addedBy === me;
   const status = q.offer
-    ? `<strong>Charger ${q.offer.chargerId} is ready</strong> — ${countdown(q.offer.expiresAt)} to plug in`
+    ? `<span class="badge amber">Charger ${q.offer.chargerId} ready</span> ${countdown(q.offer.expiresAt)} to plug in`
     : q.eta - now() < 60_000
       ? 'Next charger that frees up'
-      : `Expected ~${clock(q.eta)} (in ${mins(q.eta - now())})`;
-  return `<li class="${manages ? 'mine' : ''}">
-    <span class="pos" aria-label="Position ${q.position}">${q.position}</span>
-    <div>
-      <div class="who">${esc(q.name)}${youTag(q, me)}
-        ${q.urgent ? '<span class="tag-urgent"> · low range</span>' : ''}</div>
-      <div class="meta">${q.currentRange} → ${q.targetRange} mi · ${status}</div>
-    </div>
-    ${manages
-      ? `<button class="btn ghost" data-action="leave" data-id="${q.id}">${q.owner === me ? 'Leave' : 'Remove'}</button>`
-      : `<button class="btn link" data-action="remove" data-id="${q.id}" data-name="${esc(q.name)}">Remove</button>`}
-  </li>`;
+      : `Expected ~${clock(q.eta)} <span class="muted">(in ${mins(q.eta - now())})</span>`;
+  return `<tr class="${manages ? 'mine' : ''}">
+    <td class="pos">${q.position}</td>
+    <td><span class="who">${esc(q.name)}</span>${youTag(q, me)}${q.urgent ? ' <span class="badge red">Low range</span>' : ''}</td>
+    <td class="range">${q.currentRange} → ${q.targetRange} mi</td>
+    <td>${status}</td>
+    <td class="act">${manages
+      ? `<button class="btn" data-action="leave" data-id="${q.id}">${q.owner === me ? 'Leave' : 'Remove'}</button>`
+      : `<button class="btn link" data-action="remove" data-id="${q.id}" data-name="${esc(q.name)}">Remove</button>`}</td>
+  </tr>`;
 }
 
 function renderAlerts(v, mine, myEntry) {
   const me = v.me;
   const alerts = [];
-  const alert = (html, button) => alerts.push(`<div class="alert"><div>${html}</div>${button}</div>`);
+  const alert = (html, button) => alerts.push(`<div class="notice warning"><div>${html}</div>${button}</div>`);
 
   if (myEntry?.offer) {
     const o = myEntry.offer;
@@ -241,23 +282,32 @@ function renderAlerts(v, mine, myEntry) {
   }
 
   $('#alerts').innerHTML = alerts.join('');
-  document.title = alerts.length ? '🔔 EVIE · Action needed' : 'EVIE · Office EV charging';
+  document.title = alerts.length ? '🔔 EVIE · Action needed' : 'EVIE · 101 Science Park EV Charging';
 }
 
 function renderRules(c) {
   const mph = Math.round(c.chargerKw * c.milesPerKwh);
-  $('#rules').innerHTML = [
-    'Mornings are first come, first served: plug into any free charger and check in.',
-    `Everyone gets at least <strong>${mins(c.minSessionMinutes * 60_000)}</strong> before they can be asked to swap (sooner only if they've reached their target).`,
-    `When someone is waiting, the person who needs the <strong>fewest extra miles</strong> is asked to swap; anyone over <strong>${mins(c.maxSessionMinutes * 60_000)}</strong> goes first.`,
-    `When a charger frees up it's held for the next person in the queue for <strong>${c.offerMinutes} min</strong>, then passed on.`,
-    `People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`,
-    "You can add a colleague to the queue. You'll get their alerts, and they can also claim their charger by checking in with the same name.",
+  const f = app.view?.features ?? {};
+  const rules = ['Mornings are first come, first served: plug into any free charger and check in.'];
+  if (f.advancedScheduling) {
+    rules.push(
+      `Everyone gets at least <strong>${mins(c.minSessionMinutes * 60_000)}</strong> before they can be asked to swap (sooner only if they've reached their target).`,
+      `When someone is waiting, the person who needs the <strong>fewest extra miles</strong> is asked to swap; anyone over <strong>${mins(c.maxSessionMinutes * 60_000)}</strong> goes first.`,
+    );
+  } else {
+    rules.push('If all chargers are busy, join the queue. Please unplug and check out once you have the charge you need.');
+  }
+  rules.push(`When a charger frees up it's held for the next person in the queue for <strong>${c.offerMinutes} min</strong>, then passed on.`);
+  if (f.advancedScheduling) rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
+  if (f.addSomeoneElse) {
+    rules.push("You can add a colleague to the queue. You'll get their alerts, and they can also claim their charger by checking in with the same name.");
+  }
+  if (f.email) rules.push("Add your email when you check in or queue, and EVIE will email you when it's your turn. It's deleted overnight.");
+  rules.push(
     `Estimates assume ${c.chargerKw} kW ≈ ${mph} miles per hour of charging. Use “Update range” to correct them.`,
     'No accounts: your device remembers you, and everything resets overnight.',
-  ]
-    .map((r) => `<li>${r}</li>`)
-    .join('');
+  );
+  $('#rules').innerHTML = rules.map((r) => `<li>${r}</li>`).join('');
 }
 
 function tickCountdowns() {
@@ -287,6 +337,7 @@ function ping(key, title, body) {
   if (app.notified.has(key)) return;
   app.notified.add(key);
   sessionStorage.setItem('evie.notified', JSON.stringify([...app.notified].slice(-50)));
+  if (!app.view?.features?.browserNotifications) return; // in-page banner only
   beep();
   navigator.vibrate?.([200, 100, 200]);
   showNotification(title, body, key);
@@ -397,6 +448,10 @@ function openForm(mode, chargerId) {
   form.name.readOnly = Boolean(proxyFor);
   form.name.closest('label').hidden = mode === 'update';
   $('#name-label').textContent = mode === 'guest' || proxyFor ? 'Their name' : 'Your name';
+  const showEmail = Boolean(v.features?.email) && mode !== 'update' && !proxyFor;
+  form.email.closest('label').hidden = !showEmail;
+  form.email.value = showEmail && mode !== 'guest' ? remembered.email || '' : '';
+  $('#email-label').textContent = mode === 'guest' ? 'Their email (optional)' : 'Email for alerts (optional)';
   updateEstimate();
   $('#form-dialog').showModal();
   (mode === 'update' || form.name.value ? form.currentRange : form.name).focus();
@@ -428,13 +483,17 @@ async function submitForm(e) {
     targetRange: form.targetRange.value,
     chargerId,
     forSomeoneElse: mode === 'guest',
+    email: form.email.closest('label').hidden ? undefined : form.email.value.trim(),
   };
   const submit = $('#form-submit');
   submit.disabled = true;
   try {
     await api(FORM_COPY[mode].action, body);
     if ((mode === 'checkin' || mode === 'queue') && !proxy) {
-      localStorage.setItem('evie.me', JSON.stringify({ name: body.name.trim(), targetRange: body.targetRange }));
+      const me = { name: body.name.trim(), targetRange: body.targetRange };
+      if (body.email !== undefined) me.email = body.email;
+      else me.email = JSON.parse(localStorage.getItem('evie.me') || '{}').email;
+      localStorage.setItem('evie.me', JSON.stringify(me));
     }
     $('#form-dialog').close();
     toast({ queue: "You're in the queue.", guest: `${body.name.trim()} is in the queue.` }[mode] ?? 'Saved.');

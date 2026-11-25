@@ -1,7 +1,7 @@
 // App-shell cache so EVIE opens instantly (and shows last-known state) on flaky office Wi-Fi.
 // Paths are relative to the service worker, so this works at / and under /Evie/ on GitHub Pages.
-const CACHE = 'evie-v2';
-const SHELL = ['./', 'app.js', 'backend.js', 'scheduler.js', 'styles.css', 'manifest.webmanifest', 'icon.svg'];
+const CACHE = 'evie-v4';
+const SHELL = ['./', 'settings.html', 'app.js', 'backend.js', 'shell.js', 'theme.js', 'settings-page.js', 'scheduler.js', 'settings.js', 'tokens.css', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'fonts/Roboto-Regular.ttf', 'fonts/Roboto-Medium.ttf'];
 const scope = () => new URL(self.registration.scope);
 
 self.addEventListener('install', (e) => {

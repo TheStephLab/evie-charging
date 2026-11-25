@@ -1,10 +1,10 @@
 {
-  "name": "EVIE · Office EV charging",
+  "name": "EVIE · 101 Science Park EV Charging",
   "short_name": "EVIE",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0f766e",
-  "theme_color": "#0f766e",
+  "background_color": "#4D5EE0",
+  "theme_color": "#4D5EE0",
   "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
 }

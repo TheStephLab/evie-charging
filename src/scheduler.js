@@ -14,7 +14,13 @@ export const DEFAULT_CONFIG = Object.freeze({
   offerMinutes: 15, // time a queued person has to plug in once a charger is offered
   swapGraceMinutes: 15, // expected time to unplug after a swap request
   urgentRangeMiles: 30, // queue entries below this range jump ahead of non-urgent ones
+  // Policy switches (the app maps feature flags onto these):
+  advancedScheduling: true, // guaranteed time, need-based swap requests, low-range priority; off = plain FIFO
+  allowProxy: true, // allow adding someone else to the queue
+  emailEnabled: true, // accept and keep optional email addresses for alerts
 });
+
+const adv = (c) => c.advancedScheduling !== false;
 
 export class SchedulerError extends Error {
   constructor(message, status = 400) {
@@ -53,6 +59,15 @@ function cleanMiles(v, label) {
     throw new SchedulerError(`${label} must be between 0 and 1000 miles.`);
   }
   return Math.round(n);
+}
+
+function cleanEmail(v, c) {
+  if (!c.emailEnabled || v == null || String(v).trim() === '') return null;
+  const s = String(v).trim();
+  if (s.length > 254 || !/^[^\s@<>()",;:\\]+@[^\s@<>()",;:\\]+\.[^\s@<>()",;:\\]+$/.test(s)) {
+    throw new SchedulerError('Please enter a valid email address, or leave it blank.');
+  }
+  return s;
 }
 
 function cleanClient(v) {
@@ -115,6 +130,7 @@ export function checkIn(state, input, now, c) {
   const clientId = cleanClient(input.clientId);
   let name = cleanName(input.name);
   const { currentRange, targetRange } = cleanRanges(input);
+  const email = cleanEmail(input.email, c);
   const ch = getCharger(state, input.chargerId);
   if (ch.session) throw new SchedulerError(`Charger ${ch.id} is already in use by ${ch.session.name}.`, 409);
   const reserved = offerFor(state, ch.id);
@@ -134,12 +150,14 @@ export function checkIn(state, input, now, c) {
   if (owner === clientId && chargerOf(state, clientId)) {
     throw new SchedulerError('You are already checked in to a charger.', 409);
   }
+  const previous = state.queue.find((e) => e.clientId === owner);
   state.queue = state.queue.filter((e) => e !== reserved && e.clientId !== owner);
   ch.session = {
     id: nextId(state, 's'),
     clientId: owner,
     addedBy,
     name,
+    email: email ?? reserved?.email ?? previous?.email ?? null,
     startedAt: now,
     startRange: currentRange,
     reportedRange: currentRange,
@@ -180,7 +198,9 @@ export function joinQueue(state, input, now, c) {
   const clientId = cleanClient(input.clientId);
   const name = cleanName(input.name);
   const { currentRange, targetRange } = cleanRanges(input);
+  const email = cleanEmail(input.email, c);
   const proxy = Boolean(input.forSomeoneElse);
+  if (proxy && c.allowProxy === false) throw new SchedulerError('Adding someone else to the queue is turned off.', 403);
   if (proxy) {
     const busy =
       state.queue.some((e) => sameName(e.name, name)) || state.chargers.some((ch) => ch.session && sameName(ch.session.name, name));
@@ -197,6 +217,7 @@ export function joinQueue(state, input, now, c) {
     clientId: proxy ? nextId(state, 'guest-') : clientId,
     addedBy: proxy ? clientId : null,
     name,
+    email,
     currentRange,
     targetRange,
     joinedAt: now,
@@ -226,18 +247,28 @@ export function tick(state, now, c) {
     }
     return true;
   });
-  state.queue.sort(queueOrder);
+  state.queue.sort(adv(c) ? queueOrder : (a, b) => a.joinedAt - b.joinedAt);
 
   for (const ch of state.chargers) {
     if (ch.session || offerFor(state, ch.id)) continue;
     const next = state.queue.find((e) => !e.offer);
     if (!next) break;
     next.offer = { chargerId: ch.id, offeredAt: now, expiresAt: now + c.offerMinutes * MIN };
-    events.push({ type: 'offer', chargerId: ch.id, name: next.name, clientId: next.clientId });
+    events.push({ type: 'offer', chargerId: ch.id, name: next.name, clientId: next.clientId, email: next.email ?? null });
   }
 
   const waiting = state.queue.filter((e) => !e.offer);
   const active = state.chargers.filter((ch) => ch.session);
+
+  // Basic mode: plain first-come-first-served, nobody is ever asked to swap.
+  if (!adv(c)) {
+    for (const ch of active.filter((x) => x.session.swapRequestedAt)) {
+      ch.session.swapRequestedAt = null;
+      ch.session.swapFor = null;
+      events.push({ type: 'swap-cancelled', chargerId: ch.id, name: ch.session.name, clientId: ch.session.clientId });
+    }
+    return events;
+  }
 
   // Cancel surplus swap requests (most recent first) if the queue shrank.
   const requested = active
@@ -264,20 +295,32 @@ export function tick(state, now, c) {
       const forName = waiting[stillRequested + i]?.name ?? null;
       s.swapRequestedAt = now;
       s.swapFor = forName;
-      events.push({ type: 'swap-request', chargerId: ch.id, name: s.name, clientId: s.clientId, forName });
+      events.push({
+        type: 'swap-request',
+        chargerId: ch.id,
+        name: s.name,
+        clientId: s.clientId,
+        forName,
+        email: s.email ?? null,
+        startedAt: s.startedAt,
+      });
     });
   }
 
   return events;
 }
 
-// Rough ETA for each queue entry: simulate chargers freeing up at their earliest swap time.
+// Rough ETA for each queue entry: simulate chargers freeing up at their earliest swap time
+// (advanced) or when each driver should reach their target (basic).
 export function queueEtas(state, now, c) {
   const rate = milesPerHour(c);
-  const hold = (need) => Math.min(c.minSessionMinutes * MIN, (Math.max(0, need) / rate) * HOUR);
+  const full = (need) => (Math.max(0, need) / rate) * HOUR;
+  const hold = (need) => (adv(c) ? Math.min(c.minSessionMinutes * MIN, full(need)) : full(need));
   const free = state.chargers.map((ch) => {
     if (ch.session) {
-      return ch.session.swapRequestedAt ? now : Math.max(now, sessionInfo(ch.session, now, c).eligibleAt);
+      if (ch.session.swapRequestedAt) return now;
+      const info = sessionInfo(ch.session, now, c);
+      return Math.max(now, adv(c) ? info.eligibleAt : info.reachTargetAt);
     }
     const o = offerFor(state, ch.id);
     return o ? now + hold(o.targetRange - o.currentRange) : now;
@@ -312,6 +355,7 @@ export function publicState(state, now, c, tag = (id) => id) {
           owner: tag(s.clientId),
           addedBy: tagOrNull(s.addedBy),
           name: s.name,
+          hasEmail: Boolean(s.email),
           startedAt: s.startedAt,
           startRange: s.startRange,
           targetRange: s.targetRange,
@@ -335,8 +379,9 @@ export function publicState(state, now, c, tag = (id) => id) {
       name: e.name,
       currentRange: e.currentRange,
       targetRange: e.targetRange,
+      hasEmail: Boolean(e.email),
       joinedAt: e.joinedAt,
-      urgent: e.urgent,
+      urgent: adv(c) && e.urgent,
       offer: e.offer,
       position: i + 1,
       eta: etas[e.id],

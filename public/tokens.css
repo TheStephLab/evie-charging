@@ -1,0 +1,120 @@
+@font-face { font-family: Roboto; src: url("fonts/Roboto-Light.ttf") format("truetype"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: Roboto; src: url("fonts/Roboto-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Roboto; src: url("fonts/Roboto-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Roboto; src: url("fonts/Roboto-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }
+
+:root {
+  color-scheme: light;
+  --white: #FFFFFF;
+  --gray-50: #F9FBFC;
+  --gray-100: #F3F4F5;
+  --gray-200: #EAECED;
+  --gray-300: #DFE3E6;
+  --gray-400: #D2D6D9;
+  --gray-500: #6B6F73;
+  --gray-600: #515559;
+  --gray-700: #393D40;
+  --gray-800: #2D3033;
+  --gray-900: #151719;
+  --black: #000000;
+  --text: #000000;
+  --surface: #FFFFFF;
+  --background: #F3F4F5;
+  --interaction: #4D5EE0;
+  --alert: #CC2E29;
+  --warning: #E6A700;
+  --success: #179D71;
+  --info: #4D5EE0;
+  --highlight: #FFEE80;
+  --visited: #540A7D;
+  --text-muted: var(--gray-600);
+  --border: var(--gray-300);
+  --control-border: var(--gray-500);
+  --surface-subtle: var(--gray-50);
+  --on-interaction: var(--white);
+  --row-highlight-opacity: 16%;
+  --small-highlight-text: var(--black);
+  --data-vis-01: #1A76D9;
+  --data-vis-02: #DC7300;
+  --data-vis-03: #B869AA;
+  --data-vis-04: #008A00;
+  --data-vis-05: #9B8778;
+  --data-vis-06: #B90091;
+  --data-vis-07: #B88D00;
+  --data-vis-08: #2D2DB9;
+  --data-vis-09: #2499BF;
+  --data-vis-10: #BE1441;
+  --data-vis-11: #519C17;
+  --data-vis-12: #821EA0;
+  --data-label-06: var(--white);
+  --data-label-08: var(--white);
+  --data-label-10: var(--white);
+  --data-label-12: var(--white);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --text: #FFFFFF;
+  --surface: #151719;
+  --background: #2D3033;
+  --interaction: #78A1FC;
+  --alert: #FF4640;
+  --warning: #FFBA00;
+  --success: #44C390;
+  --info: #78A1FC;
+  --highlight: #FFEE80;
+  --visited: #E5A2FF;
+  --text-muted: var(--gray-400);
+  --border: var(--gray-600);
+  --control-border: var(--gray-500);
+  --surface-subtle: var(--gray-800);
+  --on-interaction: var(--black);
+  --row-highlight-opacity: 24%;
+  --small-highlight-text: rgb(0 0 0 / 90%);
+  --data-vis-01: #1A76D9;
+  --data-vis-02: #DC7300;
+  --data-vis-03: #D28CD2;
+  --data-vis-04: #009900;
+  --data-vis-05: #9B8778;
+  --data-vis-06: #E022D7;
+  --data-vis-07: #D2AA00;
+  --data-vis-08: #485FD4;
+  --data-vis-09: #32B4CD;
+  --data-vis-10: #D92E78;
+  --data-vis-11: #A2CC66;
+  --data-vis-12: #CB73E5;
+  --data-label-06: var(--black);
+  --data-label-08: var(--white);
+  --data-label-10: var(--black);
+  --data-label-12: var(--black);
+}
+
+:root {
+  --app-bar-height: 64px;
+  --rail-width: 240px;
+  --row-highlight: color-mix(in srgb, var(--highlight) var(--row-highlight-opacity), var(--surface));
+  --selected: color-mix(in srgb, var(--interaction) 12%, var(--surface));
+  --alert-surface: color-mix(in srgb, var(--alert) 12%, var(--surface));
+  --warning-surface: color-mix(in srgb, var(--warning) 16%, var(--surface));
+  --success-surface: color-mix(in srgb, var(--success) 12%, var(--surface));
+}
+
+.type-editorial-h1 { font: 300 45px/52px Roboto, sans-serif; letter-spacing: 0; padding-block: 32px 16px; }
+.type-editorial-h2 { font: 300 36px/44px Roboto, sans-serif; letter-spacing: 0; padding-block: 16px; }
+.type-editorial-h3 { font: 300 32px/40px Roboto, sans-serif; letter-spacing: 0; padding-block: 8px; }
+.type-editorial-h4 { font: 300 24px/28px Roboto, sans-serif; letter-spacing: .16px; padding-block: 16px 4px; }
+.type-editorial-h5 { font: 300 22px/24px Roboto, sans-serif; letter-spacing: .32px; padding-block: 16px 8px; }
+.type-editorial-h6 { font: 300 20px/24px Roboto, sans-serif; letter-spacing: .32px; padding-block: 16px 8px; }
+.type-app-h1 { font: 400 28px/36px Roboto, sans-serif; letter-spacing: 0; padding-block: 16px; }
+.type-app-h2 { font: 400 24px/32px Roboto, sans-serif; letter-spacing: 0; padding-block: 16px; }
+.type-app-h3 { font: 500 22px/28px Roboto, sans-serif; letter-spacing: 0; padding-block: 16px; }
+.type-app-h4 { font: 600 18px/24px Roboto, sans-serif; letter-spacing: .15px; padding-block: 16px; }
+.type-app-h5 { font: 600 16px/20px Roboto, sans-serif; letter-spacing: .1px; padding-block: 16px; }
+.type-app-h6 { font: 600 14px/20px Roboto, sans-serif; letter-spacing: .1px; padding-block: 16px; }
+.type-subtitle-1 { font: 500 16px/24px Roboto, sans-serif; letter-spacing: .48px; padding-block: 16px 8px; }
+.type-subtitle-2 { font: 500 14px/24px Roboto, sans-serif; letter-spacing: .48px; padding-block: 16px 8px; }
+.type-body-1 { font: 400 16px/24px Roboto, sans-serif; letter-spacing: .32px; padding-block: 8px 16px; }
+.type-body-2 { font: 400 14px/24px Roboto, sans-serif; letter-spacing: .16px; padding-block: 8px 16px; }
+.type-button { font: 500 14px/20px Roboto, sans-serif; letter-spacing: .48px; padding-block: 18px; }
+.type-caption { font: 400 12px/20px Roboto, sans-serif; letter-spacing: .64px; padding-block: 2px; }
+.type-overline { font: 400 10px/20px Roboto, sans-serif; letter-spacing: .8px; padding-block: 2px; text-transform: uppercase; }

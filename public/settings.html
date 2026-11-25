@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Settings · EVIE · 101 Science Park EV Charging</title>
+  <meta name="theme-color" content="#FFFFFF">
+  <script src="theme.js"></script>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="settings-page.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="app-bar" aria-label="Application bar">
+    <button id="navigation-toggle" class="icon-button" type="button" aria-label="Toggle navigation" aria-controls="navigation-rail" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg></button>
+    <a class="app-name" href="./" aria-label="EVIE home">EVIE<span class="app-site">101 Science Park EV Charging</span></a>
+    <div class="app-actions">
+      <button class="icon-button" type="button" popovertarget="appearance-menu" aria-label="Appearance" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m0 2v16a8 8 0 0 1 0-16"/></svg></button>
+    </div>
+  </header>
+
+  <aside class="rail" id="navigation-rail" aria-label="Navigation">
+    <div class="rail-heading">EVIE</div>
+    <div class="rail-label">101 SCIENCE PARK</div>
+    <nav class="section-nav" aria-label="Pages">
+      <a href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg> Chargers</a>
+      <a href="settings.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg> Settings</a>
+    </nav>
+    <div class="rail-bottom">
+      ADMIN
+      <p>Protected by an admin token. No accounts.</p>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <main id="main">
+      <div class="context-bar"><span>101 Science Park <span aria-hidden="true">/</span> EVIE <span aria-hidden="true">/</span> Settings</span><span id="mode-note" hidden></span></div>
+      <div class="page-heading"><h1 class="type-app-h1">Settings</h1></div>
+
+      <section id="locked" class="panel" aria-labelledby="unlock-h" hidden>
+        <div class="panel-head"><h2 id="unlock-h" class="type-app-h4">Admin token</h2></div>
+        <div class="panel-body">
+          <p class="muted" id="token-help"></p>
+          <form id="unlock-form" class="inline" novalidate>
+            <label>Token
+              <input name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+            </label>
+            <button class="btn primary" type="submit">Unlock</button>
+          </form>
+          <p id="unlock-error" class="error" role="alert"></p>
+        </div>
+      </section>
+
+      <form id="settings-form" class="stack" novalidate hidden>
+        <section class="panel" aria-labelledby="features-h">
+          <div class="panel-head"><h2 id="features-h" class="type-app-h4">Features</h2></div>
+          <p class="panel-hint">Checking in to a charger and the queue (with current and target range) are always on. Everything else stays off until you enable it here.</p>
+          <div class="panel-body"><div id="features"></div></div>
+        </section>
+
+        <section class="panel" aria-labelledby="tuning-h">
+          <div class="panel-head"><h2 id="tuning-h" class="type-app-h4">Scheduling</h2></div>
+          <div class="panel-body"><div id="tuning" class="tuning"></div></div>
+        </section>
+
+        <section class="panel" aria-labelledby="email-h">
+          <div class="panel-head"><h2 id="email-h" class="type-app-h4">Email (SMTP)</h2></div>
+          <div class="panel-body">
+            <p id="smtp-status"></p>
+            <div id="test-email" class="inline" hidden>
+              <label>Send a test email to
+                <input id="test-to" type="email" autocomplete="email">
+              </label>
+              <button id="test-btn" class="btn" type="button">Send test</button>
+            </div>
+          </div>
+        </section>
+
+        <p id="save-error" class="error" role="alert"></p>
+        <div class="save-bar">
+          <button class="btn primary" type="submit" id="save-btn">Save settings</button>
+          <button class="btn" type="button" id="lock-btn">Lock</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <div id="appearance-menu" class="app-menu" popover role="dialog" aria-label="Appearance">
+    <div class="menu-heading"><strong>Appearance</strong><span class="type-caption">Theme: <span id="theme-current">System</span></span></div>
+    <fieldset class="theme-options">
+      <legend class="visually-hidden">Theme</legend>
+      <label><input type="radio" name="theme" value="system"><span class="theme-check" aria-hidden="true">✓</span> System</label>
+      <label><input type="radio" name="theme" value="light"><span class="theme-check" aria-hidden="true">✓</span> Light</label>
+      <label><input type="radio" name="theme" value="dark"><span class="theme-check" aria-hidden="true">✓</span> Dark</label>
+    </fieldset>
+    <div class="menu-footer"><span class="type-caption">Saved on this device.</span><a href="fonts/Roboto-OFL.txt" target="_blank" rel="noopener">Roboto font licence ↗</a></div>
+  </div>
+
+  <dialog id="navigation-dialog" class="navigation-dialog" aria-labelledby="navigation-title">
+    <button class="close icon-button" type="button" data-close-navigation aria-label="Close navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></button>
+    <h2 id="navigation-title" class="type-app-h4">EVIE</h2>
+    <div id="mobile-navigation"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
