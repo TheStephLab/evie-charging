@@ -202,3 +202,16 @@ test('emails are ignored when email is disabled, and adding others can be switch
     /turned off/,
   );
 });
+
+test('advanced scheduling caps the queue (default 6), basic mode does not', () => {
+  const s = fullOffice();
+  for (let i = 0; i < 6; i++) joinQueue(s, { clientId: id(10 + i), name: `Q${i}`, currentRange: 50, targetRange: 150 }, T0 + i, c);
+  assert.throws(() => joinQueue(s, { clientId: id(20), name: 'Late', currentRange: 50, targetRange: 150 }, T0, c), /queue is full \(6 waiting\)/);
+  assert.throws(
+    () => joinQueue(s, { clientId: id(10), name: 'Guest', currentRange: 50, targetRange: 150, forSomeoneElse: true }, T0, c),
+    /queue is full/,
+    'adding someone else also respects the cap',
+  );
+  joinQueue(s, { clientId: id(20), name: 'Late', currentRange: 50, targetRange: 150 }, T0, basic);
+  assert.equal(s.queue.length, 7);
+});

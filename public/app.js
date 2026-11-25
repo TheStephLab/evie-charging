@@ -67,6 +67,7 @@ function setOnline(online) {
   document.querySelectorAll('main [data-action]').forEach((b) => {
     b.disabled = !online;
   });
+  if (app.view && queueFull(app.view)) ['#join-queue', '#guest-btn'].forEach((s) => ($(s).disabled = true));
 }
 
 // Sticker deep links: ?charger=N, or …/c/N when served from the offline cache.
@@ -118,16 +119,20 @@ function renderMetrics(v) {
   }
   const metric = (title, value, note, suffix = '') =>
     `<div class="metric"><div class="metric-top">${title}</div><strong>${value}${suffix ? `<small>${suffix}</small>` : ''}</strong><small>${note}</small></div>`;
+  const full = queueFull(v);
   $('#metrics').innerHTML = [
     metric('Free now', free, free ? 'Plug in and check in' : 'All chargers in use', `of ${v.chargers.length}`),
     metric('Charging', charging, `${v.config.chargerKw} kW ≈ ${Math.round(v.config.chargerKw * v.config.milesPerKwh)} mi per hour`),
-    metric('In the queue', waiting, waiting ? 'Waiting for a charger' : 'Nobody waiting'),
+    metric('In the queue', waiting, full ? `Full (maximum ${v.config.maxQueue})` : waiting ? 'Waiting for a charger' : 'Nobody waiting'),
     metric('Next charger', next, nextNote),
   ].join('');
   $('#chargers-count').textContent = `${free} of ${v.chargers.length} free`;
-  $('#queue-count').textContent = waiting ? `${waiting} waiting` : '';
+  $('#queue-count').textContent = waiting ? (full ? `${waiting} waiting · full` : `${waiting} waiting`) : '';
+  $('#queue-count').className = `badge${full ? ' amber' : ''}`;
   $('#updated').textContent = `Updated ${clock(v.now)}`;
 }
+
+const queueFull = (v) => Boolean(v.features?.advancedScheduling && v.config.maxQueue > 0 && v.queue.length >= v.config.maxQueue);
 
 function render() {
   const v = app.view;
@@ -147,18 +152,23 @@ function render() {
   renderMetrics(v);
 
   const freeNow = v.chargers.some((ch) => ch.status === 'free');
+  const full = queueFull(v);
   $('#join-queue').hidden = Boolean(mine || myEntry);
+  $('#join-queue').disabled = full || !app.online;
   $('#queue-hint').textContent = mine
     ? "You're charging."
     : myEntry
       ? ''
       : freeNow
         ? 'A charger is free — just plug in and check in on it above.'
-        : 'All chargers are busy. Join the queue and EVIE will tell you when one is yours.';
+        : full
+          ? `The queue is full (${v.config.maxQueue} waiting). Please check back when someone has had their turn.`
+          : 'All chargers are busy. Join the queue and EVIE will tell you when one is yours.';
 
   $('#demo').hidden = !v.demo;
   const f = v.features ?? {};
   $('#guest-btn').hidden = !f.addSomeoneElse;
+  $('#guest-btn').disabled = full || !app.online;
   $('#notify-panel').hidden = !f.browserNotifications;
   document.querySelectorAll('[data-nav="notify"]').forEach((a) => (a.hidden = !f.browserNotifications));
   renderAlerts(v, mine, myEntry);
@@ -298,7 +308,10 @@ function renderRules(c) {
     rules.push('If all chargers are busy, join the queue. Please unplug and check out once you have the charge you need.');
   }
   rules.push(`When a charger frees up it's held for the next person in the queue for <strong>${c.offerMinutes} min</strong>, then passed on.`);
-  if (f.advancedScheduling) rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
+  if (f.advancedScheduling) {
+    rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
+    rules.push(`The queue holds up to <strong>${c.maxQueue}</strong> people, so everyone in it gets a realistic chance today.`);
+  }
   if (f.addSomeoneElse) {
     rules.push("You can add a colleague to the queue. You'll get their alerts, and they can also claim their charger by checking in with the same name.");
   }

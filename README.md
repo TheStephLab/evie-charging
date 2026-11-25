@@ -17,13 +17,13 @@ EVIE is a small, fast web app for sharing the 101 Science Park 7 kW chargers fai
 
 | Flag | What it adds |
 |---|---|
-| Advanced scheduling | A guaranteed charging time (2 h). Need-based swap requests: once someone is waiting, the first person in this list is asked to unplug: anyone over the maximum time (4 h), then anyone who has reached their target, then whoever needs the fewest extra miles. Low-range queue priority (under 30 mi). |
+| Advanced scheduling | A guaranteed charging time (2 h). Need-based swap requests: once someone is waiting, the first person in this list is asked to unplug: anyone over the maximum time (4 h), then anyone who has reached their target, then whoever needs the fewest extra miles. Low-range queue priority (under 30 mi). A **queue limit of 6** (2 waiting per charger, so 3 people per charger in total); when it's full, Join queue is disabled. |
 | Add someone else to the queue | Queue a colleague (up to 3 each). You get their alerts and can check them in and out. They can also claim their charger themselves by checking in with the same name. |
 | Browser notifications | A Notifications panel for subscribing to system notifications (needs HTTPS), with sound and vibration. |
 | Email notifications | An optional email field. EVIE emails people when a charger is ready or it's their turn to swap. Needs SMTP (see below). |
 | Team chat webhook | Posts offers and swap requests to a Teams, Slack or Google Chat channel. Paste the webhook URL in Settings (see below). |
 
-Settings also cover the timings: the hold time, guaranteed time, maximum time, time to unplug, and the low-range threshold.
+Settings also cover the timings: the hold time, guaranteed time, maximum time, time to unplug, the low-range threshold, and the maximum queue length.
 
 ## Settings and the admin token
 
@@ -124,7 +124,7 @@ EVIE picks the mode itself: it uses server mode if `api/state` responds, and dem
 | `ADMIN_TOKEN` | generated | Admin token for Settings (otherwise `data/admin-token`) |
 | `CHARGERS` | `3` | Number of chargers |
 | `CHARGER_KW` / `MILES_PER_KWH` | `7` / `3.5` | Used for range estimates |
-| `MIN_SESSION_MINUTES`, `MAX_SESSION_MINUTES`, `OFFER_MINUTES`, `SWAP_GRACE_MINUTES`, `URGENT_RANGE_MILES` | `120`, `240`, `15`, `15`, `30` | Default timings; Settings can override them |
+| `MIN_SESSION_MINUTES`, `MAX_SESSION_MINUTES`, `OFFER_MINUTES`, `SWAP_GRACE_MINUTES`, `URGENT_RANGE_MILES`, `MAX_QUEUE` | `120`, `240`, `15`, `15`, `30`, `6` | Default timings; Settings can override them |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_ALLOW_INSECURE` | – | Email (see above) |
 | `WEBHOOK_URL`, `WEBHOOK_FORMAT` | –, `auto` | Default webhook (a URL saved in Settings takes priority); format `auto`, `teams` or `text` |
 | `DATA_FILE` | `./data/state.json` | Today's state; settings and the token are stored next to it |

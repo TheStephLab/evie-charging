@@ -48,6 +48,7 @@ const BASE = Object.freeze({
   offerMinutes: num('OFFER_MINUTES', DEFAULT_CONFIG.offerMinutes),
   swapGraceMinutes: num('SWAP_GRACE_MINUTES', DEFAULT_CONFIG.swapGraceMinutes),
   urgentRangeMiles: num('URGENT_RANGE_MILES', DEFAULT_CONFIG.urgentRangeMiles),
+  maxQueue: Math.round(num('MAX_QUEUE', DEFAULT_CONFIG.maxQueue)),
 });
 
 // ---- files -----------------------------------------------------------------
