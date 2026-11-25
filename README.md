@@ -9,7 +9,7 @@ EVIE is a small, fast web app for sharing the 101 Science Park 7 kW chargers fai
 **Basic, always on:**
 
 - **Check in** to a charger with your name, current range and target range.
-- **Queue** when all chargers are busy. It's first come, first served, and shows an estimated wait. When a charger frees up it's **held for the next person** for 15 minutes (configurable), then passed on. The queue holds up to **6 people waiting**; people already charging don't count. The limit is configurable in Settings, and Join queue is disabled when the queue is full.
+- **Queue** when all chargers are busy. It's first come, first served, and shows an estimated wait. Chargers are **never reserved**: when one frees up, the next person in the queue is alerted, but it goes to whoever plugs in and checks in first. The queue holds up to **6 people waiting**; people already charging don't count. The limit is configurable in Settings, and Join queue is disabled when the queue is full.
 - **Honour-system fallbacks.** Anyone can "mark free" a charger someone forgot to check out of, or remove a stale queue entry.
 - In-page alerts: a banner and a 🔔 in the tab title when a charger is ready for you or it's your turn to swap.
 
@@ -21,9 +21,9 @@ EVIE is a small, fast web app for sharing the 101 Science Park 7 kW chargers fai
 | Add someone else to the queue | Queue a colleague (up to 3 each). You get their alerts and can check them in and out. They can also claim their charger themselves by checking in with the same name. |
 | Browser notifications | A Notifications panel for subscribing to system notifications (needs HTTPS), with sound and vibration. |
 | Email notifications | An optional email field. EVIE emails people when a charger is ready or it's their turn to swap. Needs SMTP (see below). |
-| Team chat webhook | Posts offers and swap requests to a Teams, Slack or Google Chat channel. Paste the webhook URL in Settings (see below). |
+| Team chat webhook | Posts free-charger alerts and swap requests to a Teams, Slack or Google Chat channel. Paste the webhook URL in Settings (see below). |
 
-Settings also cover the timings: the hold time, guaranteed time, maximum time, time to unplug, the low-range threshold, and the maximum queue length.
+Settings also cover the timings: the guaranteed time, maximum time, time to unplug, the low-range threshold, and the maximum queue length.
 
 ## Settings and the admin token
 
@@ -46,7 +46,7 @@ When it's someone's turn, EVIE's server connects to your mail provider's SMTP se
 
 1. A person adds an optional email when they check in or join the queue. Someone who adds a colleague can enter that colleague's email instead.
 2. The address stays on the server only. It's never sent to other browsers, and it's deleted with everything else at midnight.
-3. When a charger is offered to them, or a swap is requested (advanced scheduling), the server connects to `SMTP_HOST`. The connection is encrypted with TLS: implicit TLS on port 465, or STARTTLS on 587. The server then logs in with `SMTP_USER`/`SMTP_PASS` and sends the email from `SMTP_FROM`. The email links straight back to EVIE (`PUBLIC_URL/c/N`).
+3. When a charger frees up and they're next in the queue, or a swap is requested (advanced scheduling), the server connects to `SMTP_HOST`. The connection is encrypted with TLS: implicit TLS on port 465, or STARTTLS on 587. The server then logs in with `SMTP_USER`/`SMTP_PASS` and sends the email from `SMTP_FROM`. The email links straight back to EVIE (`PUBLIC_URL/c/N`).
 4. EVIE refuses to send credentials over an unencrypted connection. `SMTP_ALLOW_INSECURE=true` exists only for a trusted internal relay.
 
 The SMTP client is built in (`src/smtp.js`, using Node's `net`/`tls`), so there are no extra dependencies. To set up:
@@ -71,7 +71,7 @@ Then turn on **Email notifications** in Settings and use **Send test** to check 
 
 ## Team chat (Microsoft Teams) webhook
 
-To post charger offers, swap requests and expired holds to a channel:
+To post free-charger alerts and swap requests to a channel:
 
 1. **Create the webhook in Teams.** In the channel, choose **⋯ (More options) → Workflows**. Pick **Send webhook alerts to a channel** (previously called *Post to a channel when a webhook request is received*), confirm the team and channel, then choose **Add workflow** and copy the URL.
 2. **Apply it in EVIE.** Open **Settings → Team chat webhook**, paste the URL and choose **Save webhook**. Then use **Send test message**; a card should appear in the channel.
@@ -124,7 +124,7 @@ EVIE picks the mode itself: it uses server mode if `api/state` responds, and dem
 | `ADMIN_TOKEN` | generated | Admin token for Settings (otherwise `data/admin-token`) |
 | `CHARGERS` | `3` | Number of chargers |
 | `CHARGER_KW` / `MILES_PER_KWH` | `7` / `3.5` | Used for range estimates |
-| `MIN_SESSION_MINUTES`, `MAX_SESSION_MINUTES`, `OFFER_MINUTES`, `SWAP_GRACE_MINUTES`, `URGENT_RANGE_MILES`, `MAX_QUEUE` | `120`, `240`, `15`, `15`, `30`, `6` | Default timings; Settings can override them |
+| `MIN_SESSION_MINUTES`, `MAX_SESSION_MINUTES`, `SWAP_GRACE_MINUTES`, `URGENT_RANGE_MILES`, `MAX_QUEUE` | `120`, `240`, `15`, `30`, `6` | Default timings; Settings can override them |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_ALLOW_INSECURE` | – | Email (see above) |
 | `WEBHOOK_URL`, `WEBHOOK_FORMAT` | –, `auto` | Default webhook (a URL saved in Settings takes priority); format `auto`, `teams` or `text` |
 | `DATA_FILE` | `./data/state.json` | Today's state; settings and the token are stored next to it |

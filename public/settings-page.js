@@ -140,7 +140,7 @@ function renderWebhook() {
   const fmt = { teams: 'Microsoft Teams card', text: 'plain text' };
   status.innerHTML = hook
     ? `<span class="badge success">Configured</span> <code>${esc(hook.masked)}</code> · ${fmt[hook.resolvedFormat]}${hook.source === 'env' ? ' · from the <code>WEBHOOK_URL</code> environment variable (saving here overrides it)' : ''}${on ? '' : '<br><span class="badge amber wrap">Turn on “Team chat webhook” under Features and save to start posting.</span>'}`
-    : '<span class="badge">Not configured</span> Paste a webhook URL to post charger offers and swap requests to a channel.';
+    : '<span class="badge">Not configured</span> Paste a webhook URL to post free-charger alerts and swap requests to a channel.';
   $('#webhook-format').value = hook && hook.source === 'settings' ? hook.format : 'auto';
   $('#webhook-clear').hidden = !(hook && hook.source === 'settings');
   $('#webhook-url').placeholder = hook ? 'Paste a new URL to replace it' : 'https://…';

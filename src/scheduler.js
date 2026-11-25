@@ -11,7 +11,6 @@ export const DEFAULT_CONFIG = Object.freeze({
   milesPerKwh: 3.5,
   minSessionMinutes: 120, // guaranteed charging time before anyone can ask you to swap
   maxSessionMinutes: 240, // after this you're first in line to swap if someone is waiting
-  offerMinutes: 15, // time a queued person has to plug in once a charger is offered
   swapGraceMinutes: 15, // expected time to unplug after a swap request
   urgentRangeMiles: 30, // queue entries below this range jump ahead of non-urgent ones
   maxQueue: 6, // max people waiting to charge; people already charging don't count
@@ -92,7 +91,6 @@ function getCharger(state, id) {
   return ch;
 }
 
-const offerFor = (state, chargerId) => state.queue.find((e) => e.offer?.chargerId === chargerId);
 const chargerOf = (state, clientId) => state.chargers.find((c) => c.session?.clientId === clientId);
 // The person themselves, or whoever added them on their behalf.
 const canManage = (rec, clientId) => rec.clientId === clientId || rec.addedBy === clientId;
@@ -133,32 +131,34 @@ export function checkIn(state, input, now, c) {
   const { currentRange, targetRange } = cleanRanges(input);
   const email = cleanEmail(input.email, c);
   const ch = getCharger(state, input.chargerId);
+  // No reservations: a free charger belongs to whoever plugs in and checks in first.
   if (ch.session) throw new SchedulerError(`Charger ${ch.id} is already in use by ${ch.session.name}.`, 409);
-  const reserved = offerFor(state, ch.id);
+
   let owner = clientId;
   let addedBy = null;
-  if (reserved && reserved.clientId !== clientId) {
-    if (reserved.addedBy === clientId) {
-      // Checking in someone you added to the queue.
-      owner = reserved.clientId;
-      addedBy = clientId;
-      name = reserved.name;
-    } else if (!(reserved.addedBy && sameName(reserved.name, name))) {
-      throw new SchedulerError(`Charger ${ch.id} is reserved for ${reserved.name}. Please join the queue.`, 409);
-    }
-    // else: the added person arrived and checked in on their own device.
+  let entry = null;
+  if (input.entryId) {
+    // Checking in someone you added to the queue.
+    entry = state.queue.find((e) => e.id === input.entryId);
+    if (!entry) throw new SchedulerError('That person is no longer in the queue.', 404);
+    if (entry.addedBy !== clientId) throw new SchedulerError('You can only check in people you added.', 403);
+    owner = entry.clientId;
+    addedBy = clientId;
+    name = entry.name;
+  } else {
+    if (chargerOf(state, clientId)) throw new SchedulerError('You are already checked in to a charger.', 409);
+    entry =
+      state.queue.find((e) => e.clientId === clientId) ??
+      // Someone a colleague queued for them has arrived and checked in on their own phone.
+      state.queue.find((e) => e.addedBy && sameName(e.name, name));
   }
-  if (owner === clientId && chargerOf(state, clientId)) {
-    throw new SchedulerError('You are already checked in to a charger.', 409);
-  }
-  const previous = state.queue.find((e) => e.clientId === owner);
-  state.queue = state.queue.filter((e) => e !== reserved && e.clientId !== owner);
+  state.queue = state.queue.filter((e) => e !== entry && e.clientId !== owner);
   ch.session = {
     id: nextId(state, 's'),
     clientId: owner,
     addedBy,
     name,
-    email: email ?? reserved?.email ?? previous?.email ?? null,
+    email: email ?? entry?.email ?? null,
     startedAt: now,
     startRange: currentRange,
     reportedRange: currentRange,
@@ -226,7 +226,7 @@ export function joinQueue(state, input, now, c) {
     targetRange,
     joinedAt: now,
     urgent: currentRange < c.urgentRangeMiles,
-    offer: null,
+    alert: null,
   });
   return [{ type: 'join', name }, ...tick(state, now, c)];
 }
@@ -243,25 +243,28 @@ export function leaveQueue(state, input, now, c) {
 // Reconcile state with the rules. Idempotent; called after every mutation and on a timer.
 export function tick(state, now, c) {
   const events = [];
-
-  state.queue = state.queue.filter((e) => {
-    if (e.offer && now >= e.offer.expiresAt) {
-      events.push({ type: 'offer-expired', chargerId: e.offer.chargerId, name: e.name, clientId: e.clientId });
-      return false;
-    }
-    return true;
-  });
   state.queue.sort(adv(c) ? queueOrder : (a, b) => a.joinedAt - b.joinedAt);
 
-  for (const ch of state.chargers) {
-    if (ch.session || offerFor(state, ch.id)) continue;
-    const next = state.queue.find((e) => !e.offer);
-    if (!next) break;
-    next.offer = { chargerId: ch.id, offeredAt: now, expiresAt: now + c.offerMinutes * MIN };
-    events.push({ type: 'offer', chargerId: ch.id, name: next.name, clientId: next.clientId, email: next.email ?? null });
-  }
+  // Free chargers aren't reserved, but the people at the front of the queue are told about them
+  // (one person per free charger). Whoever checks in first gets it.
+  const freeIds = state.chargers.filter((ch) => !ch.session).map((ch) => ch.id);
+  const used = new Set();
+  state.queue.forEach((e, i) => {
+    if (i >= freeIds.length) {
+      e.alert = null;
+      return;
+    }
+    const keep = e.alert && freeIds.includes(e.alert.chargerId) && !used.has(e.alert.chargerId);
+    const chargerId = keep ? e.alert.chargerId : freeIds.find((id) => !used.has(id));
+    used.add(chargerId);
+    if (!e.alert) {
+      events.push({ type: 'charger-free', chargerId, name: e.name, clientId: e.clientId, email: e.email ?? null });
+    }
+    e.alert = { chargerId, at: e.alert?.at ?? now };
+  });
 
-  const waiting = state.queue.filter((e) => !e.offer);
+  // People not covered by a free charger.
+  const waiting = state.queue.slice(freeIds.length);
   const active = state.chargers.filter((ch) => ch.session);
 
   // Basic mode: plain first-come-first-served, nobody is ever asked to swap.
@@ -321,20 +324,13 @@ export function queueEtas(state, now, c) {
   const full = (need) => (Math.max(0, need) / rate) * HOUR;
   const hold = (need) => (adv(c) ? Math.min(c.minSessionMinutes * MIN, full(need)) : full(need));
   const free = state.chargers.map((ch) => {
-    if (ch.session) {
-      if (ch.session.swapRequestedAt) return now;
-      const info = sessionInfo(ch.session, now, c);
-      return Math.max(now, adv(c) ? info.eligibleAt : info.reachTargetAt);
-    }
-    const o = offerFor(state, ch.id);
-    return o ? now + hold(o.targetRange - o.currentRange) : now;
+    if (!ch.session) return now;
+    if (ch.session.swapRequestedAt) return now;
+    const info = sessionInfo(ch.session, now, c);
+    return Math.max(now, adv(c) ? info.eligibleAt : info.reachTargetAt);
   });
   const etas = {};
   for (const e of state.queue) {
-    if (e.offer) {
-      etas[e.id] = now;
-      continue;
-    }
     const i = free.indexOf(Math.min(...free));
     etas[e.id] = free[i];
     free[i] += hold(e.targetRange - e.currentRange);
@@ -350,10 +346,9 @@ export function publicState(state, now, c, tag = (id) => id) {
     config: c,
     chargers: state.chargers.map((ch) => {
       const s = ch.session;
-      const offer = offerFor(state, ch.id);
       return {
         id: ch.id,
-        status: s ? (s.swapRequestedAt ? 'swap' : 'charging') : offer ? 'reserved' : 'free',
+        status: s ? (s.swapRequestedAt ? 'swap' : 'charging') : 'free',
         session: s && {
           id: s.id,
           owner: tag(s.clientId),
@@ -367,13 +362,6 @@ export function publicState(state, now, c, tag = (id) => id) {
           swapFor: s.swapFor,
           ...sessionInfo(s, now, c),
         },
-        reservedFor: offer && {
-          id: offer.id,
-          owner: tag(offer.clientId),
-          addedBy: tagOrNull(offer.addedBy),
-          name: offer.name,
-          expiresAt: offer.offer.expiresAt,
-        },
       };
     }),
     queue: state.queue.map((e, i) => ({
@@ -386,7 +374,7 @@ export function publicState(state, now, c, tag = (id) => id) {
       hasEmail: Boolean(e.email),
       joinedAt: e.joinedAt,
       urgent: adv(c) && e.urgent,
-      offer: e.offer,
+      alert: e.alert ?? null,
       position: i + 1,
       eta: etas[e.id],
     })),

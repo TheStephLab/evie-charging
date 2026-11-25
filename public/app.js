@@ -92,8 +92,8 @@ function handleDeepLink() {
   if (!ch) return toast(`There's no charger ${id}.`);
   const mine = v.chargers.find((c) => c.session?.owner === v.me);
   if (mine) return toast(mine.id === id ? `You're checked in to charger ${id}.` : `You're already checked in to charger ${mine.id}.`);
-  if (ch.status === 'free' || ch.reservedFor?.owner === v.me || ch.reservedFor?.addedBy === v.me) return openForm('checkin', id);
-  toast(`Charger ${id} is in use by ${ch.session?.name ?? ch.reservedFor?.name}.`);
+  if (ch.status === 'free') return openForm('checkin', id);
+  toast(`Charger ${id} is in use by ${ch.session?.name}.`);
   if (!v.queue.some((q) => q.owner === v.me)) openForm('queue');
 }
 
@@ -111,7 +111,7 @@ function renderMetrics(v) {
   if (!free) {
     const adv = v.features?.advancedScheduling;
     const times = v.chargers.map((ch) =>
-      ch.session ? (ch.session.swapRequestedAt ? t : Math.max(t, adv ? ch.session.eligibleAt : ch.session.reachTargetAt)) : (ch.reservedFor?.expiresAt ?? t),
+      ch.session ? (ch.session.swapRequestedAt ? t : Math.max(t, adv ? ch.session.eligibleAt : ch.session.reachTargetAt)) : t,
     );
     const soonest = Math.min(...times);
     next = soonest - t < 60_000 ? 'Soon' : clock(soonest);
@@ -181,20 +181,21 @@ function chargerCard(ch, me, mine) {
   const s = ch.session;
   const isMine = s?.owner === me;
   const manages = s && (isMine || s.addedBy === me);
-  const label = { free: 'Free', reserved: 'Reserved', charging: 'Charging', swap: 'Swap requested' }[ch.status];
-  const tone = { free: 'success', reserved: 'amber', charging: 'blue', swap: 'red' }[ch.status];
+  const label = { free: 'Free', charging: 'Charging', swap: 'Swap requested' }[ch.status];
+  const tone = { free: 'success', charging: 'blue', swap: 'red' }[ch.status];
   let body = '';
   let actions = '';
+  const nextUp = app.view.queue.find((q) => q.alert?.chargerId === ch.id);
 
   if (ch.status === 'free') {
-    body = '<p class="note">Available now.</p>';
+    body = `<p class="note">Available now. First come, first served.</p>${
+      nextUp ? `<p class="note">${esc(nextUp.name)} is next in the queue and has been told.</p>` : ''
+    }`;
     if (!mine) actions = `<button class="btn primary" data-action="checkin" data-charger="${ch.id}">Check in</button>`;
-  } else if (ch.status === 'reserved') {
-    const r = ch.reservedFor;
-    body = `<p class="who">${esc(r.name)}${youTag(r, me)}</p>
-      <p class="note">Held for ${countdown(r.expiresAt)} — then offered to the next person.</p>`;
-    if (r.owner === me) actions = `<button class="btn primary" data-action="checkin" data-charger="${ch.id}">I've plugged in</button>`;
-    else if (r.addedBy === me) actions = `<button class="btn primary" data-action="checkin" data-charger="${ch.id}">Check ${esc(r.name)} in</button>`;
+    // People you added can be checked in on any free charger.
+    for (const q of app.view.queue.filter((e) => e.addedBy === me)) {
+      actions += `<button class="btn" data-action="checkin" data-charger="${ch.id}" data-entry="${q.id}">Check ${esc(q.name)} in</button>`;
+    }
   } else {
     const pct = Math.max(0, Math.min(100, ((s.estRange - s.startRange) / (s.targetRange - s.startRange)) * 100));
     const t = now();
@@ -227,7 +228,7 @@ function chargerCard(ch, me, mine) {
       : `<button class="btn link" data-action="free" data-charger="${ch.id}" data-name="${esc(s.name)}">They've left — mark free</button>`;
   }
 
-  const highlight = manages || ch.reservedFor?.owner === me || ch.reservedFor?.addedBy === me;
+  const highlight = manages || (nextUp && (nextUp.owner === me || nextUp.addedBy === me));
   return `<article class="charger-card${highlight ? ' mine' : ''}" data-status="${ch.status}" aria-labelledby="ch-${ch.id}">
     <header><h3 id="ch-${ch.id}">Charger ${ch.id}</h3><span class="badge ${tone}">${label}</span></header>
     ${body}
@@ -237,8 +238,8 @@ function chargerCard(ch, me, mine) {
 
 function queueItem(q, me) {
   const manages = q.owner === me || q.addedBy === me;
-  const status = q.offer
-    ? `<span class="badge amber">Charger ${q.offer.chargerId} ready</span> ${countdown(q.offer.expiresAt)} to plug in`
+  const status = q.alert
+    ? `<span class="badge success">Charger ${q.alert.chargerId} is free</span> First to check in gets it`
     : q.eta - now() < 60_000
       ? 'Next charger that frees up'
       : `Expected ~${clock(q.eta)} <span class="muted">(in ${mins(q.eta - now())})</span>`;
@@ -258,13 +259,13 @@ function renderAlerts(v, mine, myEntry) {
   const alerts = [];
   const alert = (html, button) => alerts.push(`<div class="notice warning"><div>${html}</div>${button}</div>`);
 
-  if (myEntry?.offer) {
-    const o = myEntry.offer;
+  if (myEntry?.alert && !mine) {
+    const a = myEntry.alert;
     alert(
-      `<strong>Charger ${o.chargerId} is yours.</strong><br>Plug in and check in within ${countdown(o.expiresAt)}.`,
-      `<button class="btn primary" data-action="checkin" data-charger="${o.chargerId}">I've plugged in</button>`,
+      `<strong>Charger ${a.chargerId} is free and you're next.</strong><br>Chargers aren't reserved: whoever plugs in and checks in first gets it.`,
+      `<button class="btn primary" data-action="checkin" data-charger="${a.chargerId}">I've plugged in</button>`,
     );
-    ping(`offer:${o.chargerId}:${o.offeredAt}`, `Charger ${o.chargerId} is yours`, `Plug in within ${v.config.offerMinutes} minutes.`);
+    ping(`free:${a.chargerId}:${a.at}`, `Charger ${a.chargerId} is free`, "You're next in the queue. First to check in gets it.");
   }
   if (mine?.session.swapRequestedAt) {
     const s = mine.session;
@@ -275,12 +276,12 @@ function renderAlerts(v, mine, myEntry) {
     ping(`swap:${s.id}:${s.swapRequestedAt}`, 'Please move your car', `${s.swapFor || 'Someone'} needs charger ${mine.id}.`);
   }
   // Alerts for people you added: you're their messenger.
-  for (const q of v.queue.filter((e) => e.addedBy === me && e.offer)) {
+  for (const q of v.queue.filter((e) => e.addedBy === me && e.alert)) {
     alert(
-      `<strong>Charger ${q.offer.chargerId} is ready for ${esc(q.name)}.</strong><br>Let them know — it's held for ${countdown(q.offer.expiresAt)}.`,
-      `<button class="btn primary" data-action="checkin" data-charger="${q.offer.chargerId}">Check ${esc(q.name)} in</button>`,
+      `<strong>Charger ${q.alert.chargerId} is free and ${esc(q.name)} is next.</strong><br>Let them know. It isn't reserved, so the first to check in gets it.`,
+      `<button class="btn primary" data-action="checkin" data-charger="${q.alert.chargerId}" data-entry="${q.id}">Check ${esc(q.name)} in</button>`,
     );
-    ping(`offer:${q.offer.chargerId}:${q.offer.offeredAt}`, `Charger ${q.offer.chargerId} is ready for ${q.name}`, 'Please let them know.');
+    ping(`free:${q.alert.chargerId}:${q.alert.at}:${q.id}`, `Charger ${q.alert.chargerId} is free for ${q.name}`, 'Please let them know.');
   }
   for (const ch of v.chargers.filter((c) => c.session?.addedBy === me && c.session.swapRequestedAt)) {
     const s = ch.session;
@@ -307,7 +308,7 @@ function renderRules(c) {
   } else {
     rules.push('If all chargers are busy, join the queue. Please unplug and check out once you have the charge you need.');
   }
-  rules.push(`When a charger frees up it's held for the next person in the queue for <strong>${c.offerMinutes} min</strong>, then passed on.`);
+  rules.push("Chargers are never reserved. When one frees up, the next person in the queue is alerted, but it goes to whoever plugs in and checks in first.");
   if (f.advancedScheduling) rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
   rules.push(`Up to <strong>${c.maxQueue}</strong> people can wait in the queue. People already charging don't count towards this.`);
   if (f.addSomeoneElse) {
@@ -424,13 +425,13 @@ const FORM_COPY = {
   update: { title: (id) => `Update charger ${id}`, submit: 'Save', action: 'session/update' },
 };
 
-function openForm(mode, chargerId) {
+function openForm(mode, chargerId, entryId) {
   const v = app.view;
   const form = $('#entry-form');
   const copy = FORM_COPY[mode];
   const charger = v.chargers.find((ch) => ch.id === chargerId);
-  const proxyFor = mode === 'checkin' && charger?.reservedFor?.addedBy === v.me ? charger.reservedFor : null;
-  app.form = { mode, chargerId, proxy: Boolean(proxyFor) };
+  const proxyFor = mode === 'checkin' && entryId ? v.queue.find((q) => q.id === entryId && q.addedBy === v.me) : null;
+  app.form = { mode, chargerId, proxy: Boolean(proxyFor), entryId: proxyFor?.id };
   form.reset();
   $('#form-title').textContent = proxyFor ? `Check ${proxyFor.name} in to charger ${chargerId}` : copy.title(chargerId);
   $('#form-submit').textContent = copy.submit;
@@ -446,7 +447,7 @@ function openForm(mode, chargerId) {
     form.name.value = remembered.name || '';
     form.targetRange.value = remembered.targetRange || '';
   }
-  const entry = proxyFor ? v.queue.find((q) => q.id === proxyFor.id) : mode !== 'guest' && v.queue.find((q) => q.owner === v.me);
+  const entry = proxyFor ?? (mode !== 'guest' && v.queue.find((q) => q.owner === v.me));
   if (entry) {
     form.name.value = entry.name;
     form.currentRange.value = entry.currentRange;
@@ -487,12 +488,13 @@ function updateEstimate() {
 async function submitForm(e) {
   e.preventDefault();
   const form = e.currentTarget;
-  const { mode, chargerId, proxy } = app.form;
+  const { mode, chargerId, proxy, entryId } = app.form;
   const body = {
     name: form.name.value,
     currentRange: form.currentRange.value,
     targetRange: form.targetRange.value,
     chargerId,
+    entryId,
     forSomeoneElse: mode === 'guest',
     email: form.email.closest('label').hidden ? undefined : form.email.value.trim(),
   };
@@ -531,7 +533,7 @@ document.addEventListener('click', async (e) => {
   const chargerId = Number(btn.dataset.charger);
   try {
     if (action === 'close-form') return $('#form-dialog').close();
-    if (action === 'checkin') return openForm('checkin', chargerId);
+    if (action === 'checkin') return openForm('checkin', chargerId, btn.dataset.entry);
     if (action === 'queue') return openForm('queue');
     if (action === 'guest') return openForm('guest');
     if (action === 'update') return openForm('update', chargerId);

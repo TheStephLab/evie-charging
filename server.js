@@ -45,7 +45,6 @@ const BASE = Object.freeze({
   milesPerKwh: num('MILES_PER_KWH', DEFAULT_CONFIG.milesPerKwh),
   minSessionMinutes: minSession,
   maxSessionMinutes: Math.max(minSession, num('MAX_SESSION_MINUTES', DEFAULT_CONFIG.maxSessionMinutes)),
-  offerMinutes: num('OFFER_MINUTES', DEFAULT_CONFIG.offerMinutes),
   swapGraceMinutes: num('SWAP_GRACE_MINUTES', DEFAULT_CONFIG.swapGraceMinutes),
   urgentRangeMiles: num('URGENT_RANGE_MILES', DEFAULT_CONFIG.urgentRangeMiles),
   maxQueue: Math.round(num('MAX_QUEUE', DEFAULT_CONFIG.maxQueue)),
@@ -201,9 +200,9 @@ const mins = (ms) => {
 };
 
 const chat = {
-  offer: (e) => ({
-    title: `🔌 Charger ${e.chargerId} is free for ${e.name}`,
-    text: `Please plug in within ${config().offerMinutes} minutes, then check in. After that it's offered to the next person.`,
+  'charger-free': (e) => ({
+    title: `🔌 Charger ${e.chargerId} is free. ${e.name}, you're next in the queue`,
+    text: "Chargers aren't reserved: whoever plugs in and checks in first gets it.",
     link: `${PUBLIC_URL}/c/${e.chargerId}`,
   }),
   'swap-request': (e) => ({
@@ -211,24 +210,19 @@ const chat = {
     text: `${e.forName ? `${e.forName} is` : 'Someone is'} waiting. Please unplug within ${config().swapGraceMinutes} minutes and check out.`,
     link: `${PUBLIC_URL}/`,
   }),
-  'offer-expired': (e) => ({
-    title: `⌛ Charger ${e.chargerId} passed on`,
-    text: `${e.name} didn't plug in in time, so it's being offered to the next person.`,
-    link: `${PUBLIC_URL}/`,
-  }),
 };
 
 const emails = {
-  offer: (e) => ({
-    subject: `⚡ Charger ${e.chargerId} is ready for you`,
+  'charger-free': (e) => ({
+    subject: `⚡ Charger ${e.chargerId} is free`,
     text: `Hi ${e.name},
 
-Charger ${e.chargerId} at ${SITE_NAME} is free and is being held for you for ${config().offerMinutes} minutes.
+Charger ${e.chargerId} at ${SITE_NAME} is free and you're next in the queue.
 
-Plug in, then check in on EVIE:
+Chargers aren't reserved, so it goes to whoever plugs in and checks in first. If you want it, head over now and check in on EVIE:
 ${PUBLIC_URL}/c/${e.chargerId}
 
-If you no longer need it, please leave the queue so the next person can have it.
+If you no longer need a charge, please leave the queue.
 
 — EVIE, ${SITE_NAME} EV Charging
 You're getting this because you added your email when you joined the queue today. EVIE deletes it overnight.`,
@@ -362,7 +356,7 @@ async function handleAdmin(req, res, pathname) {
     try {
       const status = await postWebhook(hook, {
         title: '✅ EVIE is connected',
-        text: `This channel will get charger offers and swap requests from EVIE at ${SITE_NAME}.`,
+        text: `This channel will get free-charger alerts and swap requests from EVIE at ${SITE_NAME}.`,
         link: `${PUBLIC_URL}/`,
       });
       return send(res, 200, JSON.stringify({ ok: true, status, format: resolveFormat(hook.url, hook.format) }));
@@ -440,7 +434,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-// Periodic reconciliation: expires offers, raises swap requests, refreshes estimates.
+// Periodic reconciliation: raises swap requests and refreshes estimates.
 setInterval(() => apply((s, _i, now, c) => tick(s, now, c), {}), 30_000).unref();
 setInterval(() => {
   for (const s of streams) s.res.write(': ping\n\n');
