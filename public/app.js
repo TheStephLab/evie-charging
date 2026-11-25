@@ -132,7 +132,7 @@ function renderMetrics(v) {
   $('#updated').textContent = `Updated ${clock(v.now)}`;
 }
 
-const queueFull = (v) => Boolean(v.features?.advancedScheduling && v.config.maxQueue > 0 && v.queue.length >= v.config.maxQueue);
+const queueFull = (v) => Boolean(v.config.maxQueue > 0 && v.queue.length >= v.config.maxQueue);
 
 function render() {
   const v = app.view;
@@ -308,10 +308,8 @@ function renderRules(c) {
     rules.push('If all chargers are busy, join the queue. Please unplug and check out once you have the charge you need.');
   }
   rules.push(`When a charger frees up it's held for the next person in the queue for <strong>${c.offerMinutes} min</strong>, then passed on.`);
-  if (f.advancedScheduling) {
-    rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
-    rules.push(`The queue holds up to <strong>${c.maxQueue}</strong> people, so everyone in it gets a realistic chance today.`);
-  }
+  if (f.advancedScheduling) rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
+  rules.push(`The queue holds up to <strong>${c.maxQueue}</strong> people, so everyone in it gets a realistic chance today.`);
   if (f.addSomeoneElse) {
     rules.push("You can add a colleague to the queue. You'll get their alerts, and they can also claim their charger by checking in with the same name.");
   }

@@ -9,7 +9,7 @@ EVIE is a small, fast web app for sharing the 101 Science Park 7 kW chargers fai
 **Basic, always on:**
 
 - **Check in** to a charger with your name, current range and target range.
-- **Queue** when all chargers are busy. It's first come, first served, and shows an estimated wait. When a charger frees up it's **held for the next person** for 15 minutes (configurable), then passed on.
+- **Queue** when all chargers are busy. It's first come, first served, and shows an estimated wait. When a charger frees up it's **held for the next person** for 15 minutes (configurable), then passed on. The queue holds up to **6 people** (2 waiting per charger, so 3 per charger in total). This is configurable in Settings, and Join queue is disabled when the queue is full.
 - **Honour-system fallbacks.** Anyone can "mark free" a charger someone forgot to check out of, or remove a stale queue entry.
 - In-page alerts: a banner and a 🔔 in the tab title when a charger is ready for you or it's your turn to swap.
 
@@ -17,7 +17,7 @@ EVIE is a small, fast web app for sharing the 101 Science Park 7 kW chargers fai
 
 | Flag | What it adds |
 |---|---|
-| Advanced scheduling | A guaranteed charging time (2 h). Need-based swap requests: once someone is waiting, the first person in this list is asked to unplug: anyone over the maximum time (4 h), then anyone who has reached their target, then whoever needs the fewest extra miles. Low-range queue priority (under 30 mi). A **queue limit of 6** (2 waiting per charger, so 3 people per charger in total); when it's full, Join queue is disabled. |
+| Advanced scheduling | A guaranteed charging time (2 h). Need-based swap requests: once someone is waiting, the first person in this list is asked to unplug: anyone over the maximum time (4 h), then anyone who has reached their target, then whoever needs the fewest extra miles. Low-range queue priority (under 30 mi). |
 | Add someone else to the queue | Queue a colleague (up to 3 each). You get their alerts and can check them in and out. They can also claim their charger themselves by checking in with the same name. |
 | Browser notifications | A Notifications panel for subscribing to system notifications (needs HTTPS), with sound and vibration. |
 | Email notifications | An optional email field. EVIE emails people when a charger is ready or it's their turn to swap. Needs SMTP (see below). |
