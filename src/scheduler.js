@@ -14,7 +14,7 @@ export const DEFAULT_CONFIG = Object.freeze({
   offerMinutes: 15, // time a queued person has to plug in once a charger is offered
   swapGraceMinutes: 15, // expected time to unplug after a swap request
   urgentRangeMiles: 30, // queue entries below this range jump ahead of non-urgent ones
-  maxQueue: 6, // waiting-list cap (6 = 2 waiting per charger, 3 people per charger in total)
+  maxQueue: 6, // max people waiting to charge; people already charging don't count
   // Policy switches (the app maps feature flags onto these):
   advancedScheduling: true, // guaranteed time, need-based swap requests, low-range priority; off = plain FIFO
   allowProxy: true, // allow adding someone else to the queue

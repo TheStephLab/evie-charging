@@ -35,7 +35,7 @@ export const FEATURES = [
 
 export const TUNING = [
   { key: 'offerMinutes', label: 'Hold a freed charger for the next person', unit: 'min', min: 5, max: 60 },
-  { key: 'maxQueue', label: 'Maximum people in the queue', unit: 'people', min: 1, max: 50 },
+  { key: 'maxQueue', label: 'Maximum people waiting (not counting those charging)', unit: 'people', min: 1, max: 50 },
   { key: 'minSessionMinutes', label: 'Guaranteed charging time', unit: 'min', min: 15, max: 480, advanced: true },
   { key: 'maxSessionMinutes', label: 'First to be asked to swap after', unit: 'min', min: 15, max: 720, advanced: true },
   { key: 'swapGraceMinutes', label: 'Time to unplug after a swap request', unit: 'min', min: 5, max: 60, advanced: true },

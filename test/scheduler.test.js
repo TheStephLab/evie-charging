@@ -205,6 +205,7 @@ test('emails are ignored when email is disabled, and adding others can be switch
 
 test('the queue is capped (default 6) in both basic and advanced mode', () => {
   const s = fullOffice();
+  assert.equal(s.chargers.filter((ch) => ch.session).length, 3, 'people charging do not count towards the cap');
   for (let i = 0; i < 6; i++) joinQueue(s, { clientId: id(10 + i), name: `Q${i}`, currentRange: 50, targetRange: 150 }, T0 + i, c);
   assert.throws(() => joinQueue(s, { clientId: id(20), name: 'Late', currentRange: 50, targetRange: 150 }, T0, c), /queue is full \(6 waiting\)/);
   assert.throws(

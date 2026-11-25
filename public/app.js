@@ -309,7 +309,7 @@ function renderRules(c) {
   }
   rules.push(`When a charger frees up it's held for the next person in the queue for <strong>${c.offerMinutes} min</strong>, then passed on.`);
   if (f.advancedScheduling) rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
-  rules.push(`The queue holds up to <strong>${c.maxQueue}</strong> people, so everyone in it gets a realistic chance today.`);
+  rules.push(`Up to <strong>${c.maxQueue}</strong> people can wait in the queue. People already charging don't count towards this.`);
   if (f.addSomeoneElse) {
     rules.push("You can add a colleague to the queue. You'll get their alerts, and they can also claim their charger by checking in with the same name.");
   }
