@@ -48,7 +48,7 @@ export const DEMO_TOKEN = 'demo';
 
 export const REQUIREMENT_HELP = {
   smtp: 'Needs the EVIE server with SMTP configured (SMTP_HOST, SMTP_FROM…).',
-  webhook: 'Needs the EVIE server with WEBHOOK_URL configured.',
+  webhook: 'Add a webhook URL in the Team chat webhook section below.',
 };
 
 export class SettingsError extends Error {

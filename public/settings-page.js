@@ -123,7 +123,75 @@ function render() {
         : '<span class="badge amber">Not configured</span> Set <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code> and <code>SMTP_FROM</code> on the server, then restart it.';
   }
   $('#test-email').hidden = !smtp;
+  renderWebhook();
 }
+
+function renderWebhook() {
+  const hook = view.webhook;
+  const status = $('#webhook-status');
+  if (backend.mode === 'demo') {
+    status.innerHTML =
+      '<span class="badge amber">Not available in the demo</span> Posting to Teams needs the EVIE server: the browser can\'t keep the webhook URL secret.';
+    $('#webhook-fields').hidden = true;
+    return;
+  }
+  $('#webhook-fields').hidden = false;
+  const on = view.settings.features.teamWebhook;
+  const fmt = { teams: 'Microsoft Teams card', text: 'plain text' };
+  status.innerHTML = hook
+    ? `<span class="badge success">Configured</span> <code>${esc(hook.masked)}</code> · ${fmt[hook.resolvedFormat]}${hook.source === 'env' ? ' · from the <code>WEBHOOK_URL</code> environment variable (saving here overrides it)' : ''}${on ? '' : '<br><span class="badge amber wrap">Turn on “Team chat webhook” under Features and save to start posting.</span>'}`
+    : '<span class="badge">Not configured</span> Paste a webhook URL to post charger offers and swap requests to a channel.';
+  $('#webhook-format').value = hook && hook.source === 'settings' ? hook.format : 'auto';
+  $('#webhook-clear').hidden = !(hook && hook.source === 'settings');
+  $('#webhook-url').placeholder = hook ? 'Paste a new URL to replace it' : 'https://…';
+}
+
+async function webhookAction(name, body, done) {
+  $('#webhook-error').textContent = '';
+  const buttons = ['#webhook-save', '#webhook-test', '#webhook-clear'].map((s) => $(s));
+  buttons.forEach((b) => (b.disabled = true));
+  try {
+    const result = await backend.call('POST', name, body);
+    if (result.settings) {
+      view = result;
+      renderWebhook();
+      // The feature list depends on whether a webhook exists.
+      const form = $('#settings-form');
+      const pending = collect();
+      render();
+      for (const f of FEATURES) form.elements[f.key].checked = pending.features[f.key];
+    }
+    done(result);
+  } catch (err) {
+    if (err.status === 401) return showLocked(err.message);
+    $('#webhook-error').textContent = err.message;
+  } finally {
+    buttons.forEach((b) => (b.disabled = false));
+  }
+}
+
+const webhookBody = () => ({ url: $('#webhook-url').value.trim(), format: $('#webhook-format').value });
+
+$('#webhook-save').addEventListener('click', () => {
+  if (!$('#webhook-url').value.trim() && !view.webhook) return ($('#webhook-error').textContent = 'Paste the webhook URL first.');
+  webhookAction('webhook', webhookBody(), () => {
+    $('#webhook-url').value = '';
+    toast(view.settings.features.teamWebhook ? 'Webhook saved.' : 'Webhook saved. Turn on “Team chat webhook” under Features to start posting.');
+  });
+});
+$('#webhook-test').addEventListener('click', () =>
+  webhookAction('test-webhook', webhookBody(), () => toast('Test message sent. Check the channel.')),
+);
+$('#webhook-clear').addEventListener('click', () => {
+  if (!confirm('Remove the webhook URL? EVIE will stop posting to the channel.')) return;
+  webhookAction('webhook', { clear: true }, () => toast('Webhook removed.'));
+});
+$('#webhook-url').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    $('#webhook-save').click();
+  }
+});
 
 function collect() {
   const form = $('#settings-form');

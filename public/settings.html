@@ -81,6 +81,44 @@
           </div>
         </section>
 
+        <section class="panel" aria-labelledby="webhook-h">
+          <div class="panel-head"><h2 id="webhook-h" class="type-app-h4">Team chat webhook</h2></div>
+          <div class="panel-body webhook">
+            <p id="webhook-status"></p>
+            <div id="webhook-fields">
+              <details class="help">
+                <summary>How to get a Microsoft Teams webhook URL</summary>
+                <ol>
+                  <li>In Teams, open the channel EVIE should post to, then choose <strong>⋯</strong> (More options) → <strong>Workflows</strong>.</li>
+                  <li>Pick the template <strong>Send webhook alerts to a channel</strong> (older name: <em>Post to a channel when a webhook request is received</em>).</li>
+                  <li>Name it “EVIE”, confirm the team and channel, then choose <strong>Add workflow</strong>.</li>
+                  <li>Copy the URL it shows and paste it below. Treat it like a password: anyone with it can post to the channel.</li>
+                </ol>
+                <p class="muted">Slack and Google Chat incoming webhooks work too; EVIE sends them plain text.</p>
+              </details>
+              <div class="webhook-grid">
+                <label>Webhook URL
+                  <input id="webhook-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://…">
+                  <small class="hint" id="webhook-url-hint">Saved on the server only. It's never shown again in full.</small>
+                </label>
+                <label>Message format
+                  <select id="webhook-format">
+                    <option value="auto">Automatic (detect from URL)</option>
+                    <option value="teams">Microsoft Teams (Adaptive Card)</option>
+                    <option value="text">Slack, Google Chat or other (plain text)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="actions">
+                <button id="webhook-save" class="btn primary" type="button">Save webhook</button>
+                <button id="webhook-test" class="btn" type="button">Send test message</button>
+                <button id="webhook-clear" class="btn ghost" type="button" hidden>Remove</button>
+              </div>
+              <p id="webhook-error" class="error" role="alert"></p>
+            </div>
+          </div>
+        </section>
+
         <p id="save-error" class="error" role="alert"></p>
         <div class="save-bar">
           <button class="btn primary" type="submit" id="save-btn">Save settings</button>

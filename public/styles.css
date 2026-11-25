@@ -91,8 +91,8 @@ main { max-width: 1680px; margin: auto; padding: 24px 32px 32px; }
 .actions.end { justify-content: flex-end; }
 
 label { display: grid; gap: 4px; font: 500 14px/20px Roboto, sans-serif; letter-spacing: .1px; }
-input:not([type="checkbox"], [type="radio"]) { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--control-border); border-radius: 4px; background: var(--surface); color: var(--text); font: 400 14px/20px Roboto, sans-serif; letter-spacing: .16px; }
-input:not([type="checkbox"], [type="radio"]):hover { border-color: var(--interaction); }
+input:not([type="checkbox"], [type="radio"]), select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--control-border); border-radius: 4px; background: var(--surface); color: var(--text); font: 400 14px/20px Roboto, sans-serif; letter-spacing: .16px; }
+input:not([type="checkbox"], [type="radio"]):hover, select:hover { border-color: var(--interaction); }
 input[readonly] { background: var(--surface-subtle); }
 input[type="checkbox"] { accent-color: var(--interaction); }
 .hint { color: var(--text-muted); font: 400 12px/20px Roboto, sans-serif; letter-spacing: .64px; }
@@ -101,6 +101,9 @@ input[type="checkbox"] { accent-color: var(--interaction); }
 
 .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; background: var(--surface-subtle); color: var(--text); font: 400 12px/20px Roboto, sans-serif; letter-spacing: .16px; white-space: nowrap; }
 .badge:empty { display: none; }
+.badge.wrap, .req.badge { white-space: normal; }
+code { overflow-wrap: anywhere; }
+.webhook > *, #webhook-fields > *, .webhook-grid > * { min-width: 0; }
 .badge.success { background: var(--success-surface); }
 .badge.amber { background: var(--warning-surface); }
 .badge.red { background: var(--alert-surface); box-shadow: inset 3px 0 var(--alert); }
@@ -195,6 +198,13 @@ fieldset:disabled label { opacity: .55; }
 .inline { display: flex; flex-wrap: wrap; align-items: end; gap: 8px 16px; }
 .inline label { flex: 1 1 240px; }
 .save-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.webhook { display: grid; gap: 16px; }
+#webhook-fields { display: grid; gap: 16px; }
+.webhook-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 16px 24px; align-items: start; }
+.help { padding: 12px 16px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-subtle); }
+.help summary { color: var(--interaction); font-weight: 500; cursor: pointer; }
+.help ol { display: grid; gap: 4px; margin: 12px 0 8px; padding-left: 20px; }
+#webhook-error:empty { display: none; }
 
 /* ---- responsive ------------------------------------------------------------ */
 @media (max-width: 1200px) {
@@ -226,6 +236,7 @@ fieldset:disabled label { opacity: .55; }
   th, td { padding-inline: 16px; }
   .notice { padding: 16px; }
   .two { grid-template-columns: 1fr; }
+  .webhook-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
   .app-bar .optional-action { display: none; }

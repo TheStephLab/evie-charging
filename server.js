@@ -18,6 +18,7 @@ import {
 } from './src/scheduler.js';
 import { SettingsError, cleanSettings, effectiveConfig, loadSettings, publicFeatures } from './src/settings.js';
 import { sendMail, smtpConfigFromEnv } from './src/smtp.js';
+import { cleanWebhookFormat, cleanWebhookUrl, maskUrl, postWebhook, resolveFormat } from './src/webhook.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(ROOT, 'public');
@@ -26,11 +27,11 @@ const DATA_FILE = process.env.DATA_FILE || path.join(ROOT, 'data', 'state.json')
 const DATA_DIR = path.dirname(DATA_FILE);
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 const TOKEN_FILE = path.join(DATA_DIR, 'admin-token');
+const SECRETS_FILE = path.join(DATA_DIR, 'secrets.json');
 const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 const SITE_NAME = process.env.SITE_NAME || '101 Science Park';
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
 const SMTP = smtpConfigFromEnv();
-const CAPS = { smtp: Boolean(SMTP?.from), webhook: Boolean(WEBHOOK_URL) };
 
 const num = (key, fallback) => {
   const v = Number(process.env[key]);
@@ -67,7 +68,18 @@ function writeAtomic(file, contents, mode) {
 
 // ---- settings & admin token ---------------------------------------------------
 let settings = loadSettings(readJsonFile(SETTINGS_FILE), BASE);
-const config = () => effectiveConfig(BASE, settings, CAPS);
+
+// Secrets set from the settings page (the webhook URL). Kept apart from settings.json, mode 600,
+// and never sent back to the browser in full.
+let secrets = readJsonFile(SECRETS_FILE) ?? {};
+const saveSecrets = () => writeAtomic(SECRETS_FILE, JSON.stringify(secrets, null, 2), 0o600);
+function webhook() {
+  if (secrets.webhookUrl) return { url: secrets.webhookUrl, format: secrets.webhookFormat ?? 'auto', source: 'settings' };
+  if (WEBHOOK_URL) return { url: WEBHOOK_URL, format: process.env.WEBHOOK_FORMAT || 'auto', source: 'env' };
+  return null;
+}
+const caps = () => ({ smtp: Boolean(SMTP?.from), webhook: Boolean(webhook()) });
+const config = () => effectiveConfig(BASE, settings, caps());
 
 let tokenGenerated = false;
 function loadAdminToken() {
@@ -108,13 +120,21 @@ function checkAdmin(req) {
   throw new SchedulerError('That token is not valid.', 401);
 }
 
-const adminView = () =>
-  JSON.stringify({
+const adminView = () => {
+  const hook = webhook();
+  return JSON.stringify({
     settings,
     base: BASE,
-    caps: CAPS,
+    caps: caps(),
     smtp: SMTP && { host: SMTP.host, port: SMTP.port, secure: SMTP.secure, from: SMTP.from, auth: Boolean(SMTP.user) },
+    webhook: hook && {
+      masked: maskUrl(hook.url),
+      source: hook.source,
+      format: hook.format,
+      resolvedFormat: resolveFormat(hook.url, hook.format),
+    },
   });
+};
 
 // ---- state & persistence -------------------------------------------------
 let state = loadState();
@@ -152,7 +172,7 @@ const validClient = (id) => (typeof id === 'string' && /^[A-Za-z0-9_-]{8,64}$/.t
 const snapshot = (now, clientId) =>
   JSON.stringify({
     ...publicState(state, now, config(), tag),
-    features: publicFeatures(settings, CAPS),
+    features: publicFeatures(settings, caps()),
     me: clientId ? tag(clientId) : null,
   });
 
@@ -179,11 +199,22 @@ const mins = (ms) => {
   return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`;
 };
 
-const describe = {
-  offer: (e) => `🔌 EVIE: Charger ${e.chargerId} is free for ${e.name} — please plug in within ${config().offerMinutes} min.`,
-  'swap-request': (e) =>
-    `🔁 EVIE: ${e.name}, please unplug from charger ${e.chargerId} within ${config().swapGraceMinutes} min${e.forName ? ` — ${e.forName} is waiting` : ''}.`,
-  'offer-expired': (e) => `⌛ EVIE: ${e.name} didn't plug in to charger ${e.chargerId} in time; offering it to the next person.`,
+const chat = {
+  offer: (e) => ({
+    title: `🔌 Charger ${e.chargerId} is free for ${e.name}`,
+    text: `Please plug in within ${config().offerMinutes} minutes, then check in. After that it's offered to the next person.`,
+    link: `${PUBLIC_URL}/c/${e.chargerId}`,
+  }),
+  'swap-request': (e) => ({
+    title: `🔁 ${e.name}, please unplug from charger ${e.chargerId}`,
+    text: `${e.forName ? `${e.forName} is` : 'Someone is'} waiting. Please unplug within ${config().swapGraceMinutes} minutes and check out.`,
+    link: `${PUBLIC_URL}/`,
+  }),
+  'offer-expired': (e) => ({
+    title: `⌛ Charger ${e.chargerId} passed on`,
+    text: `${e.name} didn't plug in in time, so it's being offered to the next person.`,
+    link: `${PUBLIC_URL}/`,
+  }),
 };
 
 const emails = {
@@ -218,15 +249,11 @@ You're getting this because you added your email when you checked in today. EVIE
 };
 
 function notify(events) {
+  const hook = settings.features.teamWebhook ? webhook() : null;
   for (const e of events) {
-    const text = describe[e.type]?.(e);
-    if (text && settings.features.teamWebhook && WEBHOOK_URL) {
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ text }),
-        signal: AbortSignal.timeout(5000),
-      }).catch((err) => console.error('Webhook failed:', err.message));
+    const message = chat[e.type]?.(e);
+    if (message && hook) {
+      postWebhook(hook, message).catch((err) => console.error('Webhook failed:', err.message));
     }
     const mail = emails[e.type];
     if (mail && e.email && config().emailEnabled) {
@@ -310,6 +337,37 @@ async function handleAdmin(req, res, pathname) {
     writeAtomic(SETTINGS_FILE, JSON.stringify(settings, null, 2));
     apply((s, _i, now, c) => tick(s, now, c), {}); // e.g. cancel swap requests when advanced scheduling is switched off
     return send(res, 200, adminView());
+  }
+  if (pathname === '/api/admin/webhook') {
+    if (body.clear) {
+      delete secrets.webhookUrl;
+      delete secrets.webhookFormat;
+    } else {
+      const format = cleanWebhookFormat(body.format);
+      // Allow changing just the format of an already-saved URL.
+      const url = String(body.url ?? '').trim() ? cleanWebhookUrl(body.url) : secrets.webhookUrl;
+      if (!url) throw new SchedulerError('Paste the webhook URL.', 400);
+      Object.assign(secrets, { webhookUrl: url, webhookFormat: format });
+    }
+    saveSecrets();
+    broadcast(Date.now());
+    return send(res, 200, adminView());
+  }
+  if (pathname === '/api/admin/test-webhook') {
+    const hook = String(body.url ?? '').trim()
+      ? { url: cleanWebhookUrl(body.url), format: cleanWebhookFormat(body.format) }
+      : webhook();
+    if (!hook) throw new SchedulerError('Save a webhook URL first.', 409);
+    try {
+      const status = await postWebhook(hook, {
+        title: '✅ EVIE is connected',
+        text: `This channel will get charger offers and swap requests from EVIE at ${SITE_NAME}.`,
+        link: `${PUBLIC_URL}/`,
+      });
+      return send(res, 200, JSON.stringify({ ok: true, status, format: resolveFormat(hook.url, hook.format) }));
+    } catch (err) {
+      throw new SchedulerError(`The webhook rejected the test: ${err.message}`, 502);
+    }
   }
   if (pathname === '/api/admin/test-email') {
     if (!SMTP) throw new SchedulerError('SMTP is not configured on the server.', 409);
