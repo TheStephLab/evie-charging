@@ -11,16 +11,12 @@ const { data, mode } = await fetchVisitor();
 const f = data.fields;
 
 $('#demo-note').hidden = mode !== 'demo';
-$('#site-contacts').innerHTML = f.emergencyContacts
-  ? `Then contact site staff: ${richText(f.emergencyContacts)}`
-  : 'Then tell reception or your host.';
 $('#updated').textContent = data.updatedAt ? `Updated ${new Date(data.updatedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })}` : '';
 
 $('#visitor-sections').innerHTML = VISITOR_SECTIONS.map(
   (s) => `<section class="panel" aria-labelledby="${s.id}-h">
     <div class="panel-head"><h2 id="${s.id}-h" class="type-app-h4">${esc(s.title)}</h2></div>
     <div class="panel-body"><dl class="info-list">${s.fields
-      .filter((fd) => fd.key !== 'emergencyContacts')
       .map(
         (fd) =>
           `<div id="${fd.key}"><dt>${esc(fd.label)}</dt><dd>${f[fd.key] ? richText(f[fd.key]) : `<span class="muted">${MISSING}</span>`}</dd></div>`,

@@ -6,7 +6,7 @@ A small, fast visitor portal for 101 Science Park. It has no accounts and no dat
 
 | Page | What it's for |
 |---|---|
-| **Home** (`index.html`) | Emergency strip (Call 999, assembly point, first aid), links to each area, live charger availability, and quick information (reception, Wi-Fi, parking) |
+| **Home** (`index.html`) | Links to each area, live charger availability, and quick information (assembly point, first aid, reception, Wi-Fi, parking) |
 | **EV charging** (`charging.html`) | EVIE: check in to a charger and the fair queue. Details below. |
 | **Visitor centre** (`visitor.html`) | Safety and emergencies (fire exits, assembly point, first aid, defibrillator, site contacts), standard "If the fire alarm sounds" steps, and on-site information (reception, Wi-Fi, toilets, parking, accessibility, food). Printable. |
 | **Settings** (`settings.html`) | Protected by the admin token: feature flags, scheduling, email, Teams webhook, and the **visitor centre editor** |

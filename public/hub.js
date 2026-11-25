@@ -9,8 +9,13 @@ const fact = (label, value) => `<div><dt>${label}</dt><dd>${value ? richText(val
 
 const { data, mode } = await fetchVisitor();
 const f = data.fields;
-$('#emergency-facts').innerHTML = [fact('Fire assembly point', f.assemblyPoint), fact('First aid', f.firstAid)].join('');
-$('#quick-info').innerHTML = [fact('Reception', f.reception), fact('Guest Wi-Fi', f.wifi), fact('Parking', f.parking)].join('');
+$('#quick-info').innerHTML = [
+  fact('Fire assembly point', f.assemblyPoint),
+  fact('First aid', f.firstAid),
+  fact('Reception', f.reception),
+  fact('Guest Wi-Fi', f.wifi),
+  fact('Parking', f.parking),
+].join('');
 const filled = Object.values(f).filter(Boolean).length;
 $('#visitor-status').textContent = filled ? `${filled} topics` : mode === 'demo' ? 'Add details in Settings' : '';
 
