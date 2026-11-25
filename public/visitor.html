@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visitor centre · 101 Science Park Hub</title>
+  <meta name="description" content="101 Science Park Hub: visitor information, safety and EV charging.">
+  <meta name="theme-color" content="#FFFFFF">
+  <script src="theme.js"></script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preload" href="fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="visitor-page.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="app-bar" aria-label="Application bar">
+    <button id="navigation-toggle" class="icon-button" type="button" aria-label="Toggle navigation" aria-controls="navigation-rail" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg></button>
+    <a class="app-name" href="./" aria-label="101 Science Park Hub home">101 Science Park<span class="app-site">Hub</span></a>
+    <div class="app-actions">
+      <a class="icon-button optional-action" href="settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg></a>
+      <button class="icon-button" type="button" popovertarget="appearance-menu" aria-label="Appearance" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m0 2v16a8 8 0 0 1 0-16"/></svg></button>
+    </div>
+  </header>
+
+  <aside class="rail" id="navigation-rail" aria-label="Navigation">
+    <div class="rail-heading">101 Science Park Hub</div>
+    <nav class="section-nav" aria-label="Hub">
+      <a href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg> Home</a>
+      <a href="charging.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg> EV charging</a>
+      <a href="visitor.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg> Visitor centre</a>
+      <a href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg> Settings</a>
+    </nav>
+    <div class="rail-bottom">
+      VISITOR PORTAL
+      <p>No accounts. Nothing personal is kept past today.</p>
+    </div>
+  </aside>
+  <div class="workspace">
+    <main id="main">
+      <div class="context-bar"><span><a href="./">101 Science Park Hub</a> <span aria-hidden="true">/</span> Visitor centre</span><span id="updated"></span></div>
+      <div class="page-heading">
+        <h1 class="type-app-h1">Visitor centre</h1>
+        <div class="actions"><button type="button" class="btn" id="print-btn">Print</button></div>
+      </div>
+      <p id="demo-note" class="notice info" hidden>Demo mode: this information is stored in this browser. Edit it in <a href="settings.html">Settings</a> (demo token: <code>demo</code>).</p>
+
+      <section class="emergency" aria-labelledby="call-h">
+        <div class="emergency-call">
+          <h2 id="call-h" class="type-app-h5">In an emergency, call 999</h2>
+          <a class="btn danger" href="tel:999">Call 999</a>
+        </div>
+        <p id="site-contacts"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="alarm-h">
+        <div class="panel-head"><h2 id="alarm-h" class="type-app-h4">If the fire alarm sounds</h2></div>
+        <div class="panel-body">
+          <ol class="rules">
+            <li>Leave the building straight away by the nearest fire exit.</li>
+            <li>Don't use the lifts, and don't stop to collect belongings.</li>
+            <li>Go to the fire assembly point and tell your host or a fire marshal that you're out.</li>
+            <li>Don't go back in until you're told it's safe.</li>
+          </ol>
+        </div>
+      </section>
+
+      <div id="visitor-sections"></div>
+    </main>
+  </div>
+
+  <div id="appearance-menu" class="app-menu" popover role="dialog" aria-label="Appearance">
+    <div class="menu-heading"><strong>Appearance</strong><span class="type-caption">Theme: <span id="theme-current">System</span></span></div>
+    <fieldset class="theme-options">
+      <legend class="visually-hidden">Theme</legend>
+      <label><input type="radio" name="theme" value="system"><span class="theme-check" aria-hidden="true">✓</span> System</label>
+      <label><input type="radio" name="theme" value="light"><span class="theme-check" aria-hidden="true">✓</span> Light</label>
+      <label><input type="radio" name="theme" value="dark"><span class="theme-check" aria-hidden="true">✓</span> Dark</label>
+    </fieldset>
+    <div class="menu-footer"><span class="type-caption">Saved on this device.</span><a href="fonts/Roboto-OFL.txt" target="_blank" rel="noopener">Roboto font licence ↗</a></div>
+  </div>
+
+  <dialog id="navigation-dialog" class="navigation-dialog" aria-labelledby="navigation-title">
+    <button class="close icon-button" type="button" data-close-navigation aria-label="Close navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></button>
+    <h2 id="navigation-title" class="type-app-h4">101 Science Park Hub</h2>
+    <div id="mobile-navigation"></div>
+  </dialog>
+</body>
+</html>

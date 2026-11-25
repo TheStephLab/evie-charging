@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Settings · EVIE · 101 Science Park EV Charging</title>
+  <title>Settings · 101 Science Park Hub</title>
   <meta name="theme-color" content="#FFFFFF">
   <script src="theme.js"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -18,28 +18,30 @@
 
   <header class="app-bar" aria-label="Application bar">
     <button id="navigation-toggle" class="icon-button" type="button" aria-label="Toggle navigation" aria-controls="navigation-rail" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg></button>
-    <a class="app-name" href="./" aria-label="EVIE home">EVIE<span class="app-site">101 Science Park EV Charging</span></a>
+    <a class="app-name" href="./" aria-label="101 Science Park Hub home">101 Science Park<span class="app-site">Hub</span></a>
     <div class="app-actions">
+      <a class="icon-button optional-action" href="settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg></a>
       <button class="icon-button" type="button" popovertarget="appearance-menu" aria-label="Appearance" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m0 2v16a8 8 0 0 1 0-16"/></svg></button>
     </div>
   </header>
 
   <aside class="rail" id="navigation-rail" aria-label="Navigation">
-    <div class="rail-heading">EVIE</div>
-    <div class="rail-label">101 SCIENCE PARK</div>
-    <nav class="section-nav" aria-label="Pages">
-      <a href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg> Chargers</a>
+    <div class="rail-heading">101 Science Park Hub</div>
+    <nav class="section-nav" aria-label="Hub">
+      <a href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg> Home</a>
+      <a href="charging.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg> EV charging</a>
+      <a href="visitor.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg> Visitor centre</a>
       <a href="settings.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg> Settings</a>
     </nav>
     <div class="rail-bottom">
-      ADMIN
-      <p>Protected by an admin token. No accounts.</p>
+      VISITOR PORTAL
+      <p>No accounts. Nothing personal is kept past today.</p>
     </div>
   </aside>
 
   <div class="workspace">
     <main id="main">
-      <div class="context-bar"><span>101 Science Park <span aria-hidden="true">/</span> EVIE <span aria-hidden="true">/</span> Settings</span><span id="mode-note" hidden></span></div>
+      <div class="context-bar"><span><a href="./">101 Science Park Hub</a> <span aria-hidden="true">/</span> Settings</span><span id="mode-note" hidden></span></div>
       <div class="page-heading"><h1 class="type-app-h1">Settings</h1></div>
 
       <section id="locked" class="panel" aria-labelledby="unlock-h" hidden>
@@ -78,6 +80,18 @@
               </label>
               <button id="test-btn" class="btn" type="button">Send test</button>
             </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="visitor-edit-h">
+          <div class="panel-head"><h2 id="visitor-edit-h" class="type-app-h4">Visitor centre</h2><a href="visitor.html">View page</a></div>
+          <p class="panel-hint">Plain text, shown on the Visitor centre and home pages. Phone numbers become tap-to-call links. Anything left blank shows “Please ask at reception”.</p>
+          <div class="panel-body">
+            <div id="visitor-editor"></div>
+            <div class="actions" style="margin-top: 16px">
+              <button id="visitor-save" class="btn primary" type="button">Save visitor information</button>
+            </div>
+            <p id="visitor-error" class="error" role="alert"></p>
           </div>
         </section>
 
@@ -141,7 +155,7 @@
 
   <dialog id="navigation-dialog" class="navigation-dialog" aria-labelledby="navigation-title">
     <button class="close icon-button" type="button" data-close-navigation aria-label="Close navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></button>
-    <h2 id="navigation-title" class="type-app-h4">EVIE</h2>
+    <h2 id="navigation-title" class="type-app-h4">101 Science Park Hub</h2>
     <div id="mobile-navigation"></div>
   </dialog>
 

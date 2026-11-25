@@ -9,6 +9,8 @@ import {
 } from './settings.js';
 import { DEFAULT_CONFIG } from './scheduler.js';
 import { initShell } from './shell.js';
+import { VISITOR_SECTIONS, VISITOR_FIELDS, MAX_FIELD_LENGTH } from './visitor.js';
+import { fetchVisitor, saveDemoVisitor } from './visitor-data.js';
 
 initShell();
 
@@ -50,6 +52,9 @@ const serverBackend = {
   testEmail(to) {
     return this.call('POST', 'test-email', { to });
   },
+  saveVisitor(input) {
+    return this.call('POST', 'visitor', input);
+  },
 };
 
 const demoBackend = {
@@ -66,6 +71,10 @@ const demoBackend = {
     const next = cleanSettings(input, current);
     localStorage.setItem(DEMO_SETTINGS_KEY, JSON.stringify(next));
     return this.view(next);
+  },
+  async saveVisitor(input) {
+    await this.load(); // token check
+    return saveDemoVisitor(input);
   },
 };
 
@@ -95,6 +104,7 @@ function render() {
   const { settings, caps, smtp } = view;
   $('#locked').hidden = true;
   $('#settings-form').hidden = false;
+  renderVisitorEditor();
 
   $('#features').innerHTML = FEATURES.map((f) => {
     const missing = f.requires && !caps[f.requires];
@@ -171,6 +181,39 @@ async function webhookAction(name, body, done) {
 }
 
 const webhookBody = () => ({ url: $('#webhook-url').value.trim(), format: $('#webhook-format').value });
+
+// ---- visitor centre editor ------------------------------------------------------
+let visitorLoaded = false;
+async function renderVisitorEditor() {
+  if (visitorLoaded) return; // keep unsaved edits when other settings are saved
+  visitorLoaded = true;
+  const { data } = await fetchVisitor();
+  $('#visitor-editor').innerHTML = VISITOR_SECTIONS.map(
+    (s) => `<div class="editor-section"><h3>${esc(s.title)}</h3><div class="editor-grid">${s.fields
+      .map(
+        (f) => `<label>${esc(f.label)}
+          <textarea name="v-${f.key}" maxlength="${MAX_FIELD_LENGTH}" rows="3" aria-describedby="v-${f.key}-hint">${esc(data.fields[f.key])}</textarea>
+          <small class="hint" id="v-${f.key}-hint">${esc(f.hint)}</small>
+        </label>`,
+      )
+      .join('')}</div></div>`,
+  ).join('');
+}
+
+$('#visitor-save').addEventListener('click', async () => {
+  $('#visitor-error').textContent = '';
+  const fields = Object.fromEntries(VISITOR_FIELDS.map((f) => [f.key, document.querySelector(`[name="v-${f.key}"]`).value]));
+  $('#visitor-save').disabled = true;
+  try {
+    await backend.saveVisitor({ fields });
+    toast('Visitor information saved.');
+  } catch (err) {
+    if (err.status === 401) return showLocked(err.message);
+    $('#visitor-error').textContent = err.message;
+  } finally {
+    $('#visitor-save').disabled = false;
+  }
+});
 
 $('#webhook-save').addEventListener('click', () => {
   if (!$('#webhook-url').value.trim() && !view.webhook) return ($('#webhook-error').textContent = 'Paste the webhook URL first.');
@@ -276,6 +319,7 @@ $('#test-btn').addEventListener('click', async () => {
 $('#lock-btn').addEventListener('click', () => {
   sessionStorage.removeItem(TOKEN_KEY);
   view = null;
+  visitorLoaded = false;
   showLocked('');
 });
 

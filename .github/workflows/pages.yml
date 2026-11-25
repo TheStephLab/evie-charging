@@ -30,7 +30,7 @@ jobs:
         run: |
           mkdir -p site
           cp -r public/. site/
-          cp src/scheduler.js src/settings.js site/
+          cp src/scheduler.js src/settings.js src/visitor.js site/
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           npm run stickers -- --base "https://${owner}.github.io/${GITHUB_REPOSITORY#*/}" --out site/stickers
       - uses: actions/configure-pages@v6

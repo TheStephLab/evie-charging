@@ -1,6 +1,6 @@
 {
-  "name": "EVIE · 101 Science Park EV Charging",
-  "short_name": "EVIE",
+  "name": "101 Science Park Hub",
+  "short_name": "SP Hub",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -28,8 +28,8 @@ function initNavigation() {
   const mobile = matchMedia('(max-width: 760px)');
   const toggle = $('#navigation-toggle');
   const dialog = $('#navigation-dialog');
-  const nav = $('.section-nav').cloneNode(true);
-  nav.setAttribute('aria-label', 'Mobile navigation');
+  const nav = document.createElement('div');
+  for (const n of document.querySelectorAll('.rail nav, .rail .rail-label')) nav.append(n.cloneNode(true));
   $('#mobile-navigation').append(nav);
 
   const update = () => {

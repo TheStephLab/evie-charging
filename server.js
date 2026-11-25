@@ -17,6 +17,7 @@ import {
   publicState,
 } from './src/scheduler.js';
 import { SettingsError, cleanSettings, effectiveConfig, loadSettings, publicFeatures } from './src/settings.js';
+import { VisitorError, cleanVisitor, loadVisitor } from './src/visitor.js';
 import { sendMail, smtpConfigFromEnv } from './src/smtp.js';
 import { cleanWebhookFormat, cleanWebhookUrl, maskUrl, postWebhook, resolveFormat } from './src/webhook.js';
 
@@ -28,6 +29,7 @@ const DATA_DIR = path.dirname(DATA_FILE);
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 const TOKEN_FILE = path.join(DATA_DIR, 'admin-token');
 const SECRETS_FILE = path.join(DATA_DIR, 'secrets.json');
+const VISITOR_FILE = path.join(DATA_DIR, 'visitor.json');
 const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 const SITE_NAME = process.env.SITE_NAME || '101 Science Park';
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
@@ -68,6 +70,8 @@ function writeAtomic(file, contents, mode) {
 
 // ---- settings & admin token ---------------------------------------------------
 let settings = loadSettings(readJsonFile(SETTINGS_FILE), BASE);
+// Visitor centre content (fire exits, first aid…). Long-lived, unlike the charging state.
+let visitor = loadVisitor(readJsonFile(VISITOR_FILE));
 
 // Secrets set from the settings page (the webhook URL). Kept apart from settings.json, mode 600,
 // and never sent back to the browser in full.
@@ -267,7 +271,7 @@ const ACTIONS = {
 };
 
 // Shared modules: the server runs them, and the browser runs them in demo mode.
-const SHARED = { 'scheduler.js': 'scheduler.js', 'settings.js': 'settings.js' };
+const SHARED = { 'scheduler.js': 'scheduler.js', 'settings.js': 'settings.js', 'visitor.js': 'visitor.js' };
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -312,7 +316,7 @@ async function readJson(req) {
 
 function serveStatic(req, res, pathname) {
   let rel = pathname === '/' ? 'index.html' : decodeURIComponent(pathname).replace(/^\/+/, '');
-  if (rel === 'settings') rel = 'settings.html';
+  if (['settings', 'charging', 'visitor'].includes(rel)) rel = `${rel}.html`;
   const file = SHARED[rel] ? path.join(ROOT, 'src', SHARED[rel]) : path.resolve(PUBLIC, rel);
   if (!SHARED[rel] && !file.startsWith(PUBLIC + path.sep)) return send(res, 403, 'Forbidden', 'text/plain');
   fs.readFile(file, (err, data) => {
@@ -364,6 +368,11 @@ async function handleAdmin(req, res, pathname) {
       throw new SchedulerError(`The webhook rejected the test: ${err.message}`, 502);
     }
   }
+  if (pathname === '/api/admin/visitor') {
+    visitor = cleanVisitor(body);
+    writeAtomic(VISITOR_FILE, JSON.stringify(visitor, null, 2));
+    return send(res, 200, JSON.stringify(visitor));
+  }
   if (pathname === '/api/admin/test-email') {
     if (!SMTP) throw new SchedulerError('SMTP is not configured on the server.', 409);
     try {
@@ -403,6 +412,8 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (url.pathname === '/api/visitor' && req.method === 'GET') return send(res, 200, JSON.stringify(visitor));
+
     if (url.pathname === '/api/state' && req.method === 'GET') {
       const now = Date.now();
       ensureFresh(now);
@@ -420,13 +431,13 @@ const server = http.createServer(async (req, res) => {
 
     // Short sticker links (QR / NFC): /c/2 -> check in to charger 2.
     const short = url.pathname.match(/^\/c\/(\d{1,2})\/?$/);
-    if (short) return send(res, 302, '', 'text/plain', { location: `/?charger=${short[1]}` });
+    if (short) return send(res, 302, '', 'text/plain', { location: `/charging.html?charger=${short[1]}` });
 
     if (url.pathname.startsWith('/api/')) return send(res, 404, '{"error":"Not found"}');
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'Method not allowed', 'text/plain');
     return serveStatic(req, res, url.pathname);
   } catch (err) {
-    if (err instanceof SchedulerError || err instanceof SettingsError) {
+    if (err instanceof SchedulerError || err instanceof SettingsError || err instanceof VisitorError) {
       return send(res, err.status, JSON.stringify({ error: err.message }));
     }
     console.error(err);

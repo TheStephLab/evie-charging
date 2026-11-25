@@ -1,8 +1,31 @@
-# EVIE ⚡ — 101 Science Park EV Charging
+# 101 Science Park Hub
 
-EVIE is a small, fast web app for sharing the 101 Science Park 7 kW chargers fairly. It has no accounts and no database, and nothing about people lasts past today.
+A small, fast visitor portal for 101 Science Park. It has no accounts and no database, and nothing about people lasts past today.
 
 **Live demo:** <https://thestephlab.github.io/evie-charging/>. Settings are at [`settings.html`](https://thestephlab.github.io/evie-charging/settings.html); the demo token is `demo`.
+
+| Page | What it's for |
+|---|---|
+| **Home** (`index.html`) | Emergency strip (Call 999, assembly point, first aid), links to each area, live charger availability, and quick information (reception, Wi-Fi, parking) |
+| **EV charging** (`charging.html`) | EVIE: check in to a charger and the fair queue. Details below. |
+| **Visitor centre** (`visitor.html`) | Safety and emergencies (fire exits, assembly point, first aid, defibrillator, site contacts), standard "If the fire alarm sounds" steps, and on-site information (reception, Wi-Fi, toilets, parking, accessibility, food). Printable. |
+| **Settings** (`settings.html`) | Protected by the admin token: feature flags, scheduling, email, Teams webhook, and the **visitor centre editor** |
+
+## Visitor centre content
+
+The site-specific details are **entered by you** in **Settings → Visitor centre**; EVIE doesn't ship any made-up locations.
+
+- Each topic is plain text, up to 1,000 characters. Line breaks are kept, and phone numbers become tap-to-call links.
+- Any topic left blank shows "Not added yet. Please ask at reception."
+- On the server, the content is saved to `data/visitor.json`. It survives restarts and the midnight reset.
+- Anyone can read it through `GET /api/visitor`. Saving uses `POST /api/admin/visitor` and needs the admin token.
+- In demo mode it's stored in your browser.
+
+Before going live, have the site's facilities or fire safety lead check the safety details.
+
+## EV charging (EVIE)
+
+EVIE shares the 7 kW chargers fairly. Sticker links (`/c/N`) open **EV charging → Check in to charger N**.
 
 ## Features
 

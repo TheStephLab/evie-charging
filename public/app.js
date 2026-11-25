@@ -293,7 +293,7 @@ function renderAlerts(v, mine, myEntry) {
   }
 
   $('#alerts').innerHTML = alerts.join('');
-  document.title = alerts.length ? '🔔 EVIE · Action needed' : 'EVIE · 101 Science Park EV Charging';
+  document.title = alerts.length ? '🔔 Action needed · EV charging' : 'EV charging · 101 Science Park Hub';
 }
 
 function renderRules(c) {

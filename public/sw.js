@@ -1,7 +1,7 @@
 // App-shell cache so EVIE opens instantly (and shows last-known state) on flaky office Wi-Fi.
 // Paths are relative to the service worker, so this works at / and under /Evie/ on GitHub Pages.
-const CACHE = 'evie-v4';
-const SHELL = ['./', 'settings.html', 'app.js', 'backend.js', 'shell.js', 'theme.js', 'settings-page.js', 'scheduler.js', 'settings.js', 'tokens.css', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'fonts/Roboto-Regular.ttf', 'fonts/Roboto-Medium.ttf'];
+const CACHE = 'hub-v5';
+const SHELL = ['./', 'charging.html', 'visitor.html', 'settings.html', 'hub.js', 'visitor-page.js', 'visitor-data.js', 'visitor.js', 'app.js', 'backend.js', 'shell.js', 'theme.js', 'settings-page.js', 'scheduler.js', 'settings.js', 'tokens.css', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'fonts/Roboto-Regular.ttf', 'fonts/Roboto-Medium.ttf'];
 const scope = () => new URL(self.registration.scope);
 
 self.addEventListener('install', (e) => {
@@ -30,7 +30,7 @@ self.addEventListener('fetch', (e) => {
       })
       .catch(async () => {
         const sticker = e.request.mode === 'navigate' && url.pathname.match(/\/c\/(\d{1,2})\/?$/);
-        if (sticker) return Response.redirect(new URL(`./?charger=${sticker[1]}`, scope()).href, 302);
+        if (sticker) return Response.redirect(new URL(`./charging.html?charger=${sticker[1]}`, scope()).href, 302);
         return (await caches.match(e.request, { ignoreSearch: e.request.mode === 'navigate' })) || caches.match(new URL('./', scope()).href);
       }),
   );

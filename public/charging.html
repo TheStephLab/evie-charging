@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EV charging · 101 Science Park Hub</title>
+  <meta name="description" content="EVIE — fair queueing for the 101 Science Park EV chargers.">
+  <meta name="theme-color" content="#FFFFFF">
+  <script src="theme.js"></script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preload" href="fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="app-bar" aria-label="Application bar">
+    <button id="navigation-toggle" class="icon-button" type="button" aria-label="Toggle navigation" aria-controls="navigation-rail" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg></button>
+    <a class="app-name" href="./" aria-label="101 Science Park Hub home">101 Science Park<span class="app-site">Hub</span></a>
+    <div class="app-actions">
+      <span id="conn" class="conn" role="status" data-state="connecting">Connecting…</span>
+      <a class="icon-button optional-action" href="settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg></a>
+      <button class="icon-button" type="button" popovertarget="appearance-menu" aria-label="Appearance" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m0 2v16a8 8 0 0 1 0-16"/></svg></button>
+    </div>
+  </header>
+
+  <aside class="rail" id="navigation-rail" aria-label="Navigation">
+    <div class="rail-heading">101 Science Park Hub</div>
+    <nav class="section-nav" aria-label="Hub">
+      <a href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg> Home</a>
+      <a href="charging.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg> EV charging</a>
+      <a href="visitor.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg> Visitor centre</a>
+      <a href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg> Settings</a>
+    </nav>
+    <div class="rail-label">ON THIS PAGE</div>
+    <nav class="section-nav" aria-label="Page sections">
+      <a href="#chargers-h"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg> Chargers</a>
+      <a href="#queue-h"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h2v2H3zm4 0h14v2H7zM3 11h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7z"/></svg> Queue</a>
+      <a href="#notify-h" data-nav="notify" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a2 2 0 0 0-2 2v.3C7.5 5.1 6 7.3 6 10v5l-2 3h16l-2-3v-5c0-2.7-1.5-4.9-4-5.7V4a2 2 0 0 0-2-2m-2 18a2 2 0 0 0 4 0z"/></svg> Notifications</a>
+      <a href="#rules-h"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m-1 8h2v7h-2zm0-4h2v2h-2z"/></svg> How EVIE decides</a>
+    </nav>
+    <div class="rail-bottom">
+      VISITOR PORTAL
+      <p>No accounts. Nothing personal is kept past today.</p>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <main id="main">
+      <div class="context-bar"><span><a href="./">101 Science Park Hub</a> <span aria-hidden="true">/</span> EV charging</span><span id="updated"></span></div>
+      <div class="page-heading">
+        <h1 class="type-app-h1">EV charging <span class="product">EVIE</span></h1>
+        <div class="actions">
+          <button id="guest-btn" type="button" class="btn" data-action="guest" hidden>Add someone else</button>
+          <button id="join-queue" type="button" class="btn primary" data-action="queue">Join queue</button>
+        </div>
+      </div>
+
+      <section id="demo" class="notice info" aria-labelledby="demo-h" hidden>
+        <div>
+          <h2 id="demo-h">Demo mode</h2>
+          <p>This copy of EVIE runs entirely in your browser. Data stays on this device and is shared between its tabs. Advanced features are off until you turn them on in <a href="settings.html">Settings</a> (demo token: <code>demo</code>).</p>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" data-action="ff">Fast-forward 30 min</button>
+          <button type="button" class="btn ghost" data-action="reset-demo">Reset demo</button>
+        </div>
+      </section>
+
+      <div id="alerts" aria-live="assertive"></div>
+
+      <div id="metrics" class="metrics" role="group" aria-label="Summary"></div>
+
+      <section class="section" aria-labelledby="chargers-h">
+        <div class="section-head">
+          <h2 id="chargers-h" class="type-app-h4">Chargers</h2>
+          <span id="chargers-count" class="muted"></span>
+        </div>
+        <div id="chargers" class="charger-grid"><p class="muted">Loading…</p></div>
+      </section>
+
+      <section class="panel" aria-labelledby="queue-h">
+        <div class="panel-head">
+          <h2 id="queue-h" class="type-app-h4">Queue</h2>
+          <span id="queue-count" class="badge"></span>
+        </div>
+        <p id="queue-hint" class="panel-hint"></p>
+        <div class="table-wrap">
+          <table class="queue-table">
+            <thead>
+              <tr><th scope="col">#</th><th scope="col">Name</th><th scope="col">Range</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+            </thead>
+            <tbody id="queue"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="notify-panel" class="panel" aria-labelledby="notify-h" hidden>
+        <div class="panel-head"><h2 id="notify-h" class="type-app-h4">Notifications</h2></div>
+        <div class="panel-body">
+          <p id="notify-status" class="muted"></p>
+          <div class="actions">
+            <button id="notify-btn" type="button" class="btn primary" hidden>Enable notifications</button>
+            <button id="notify-test" type="button" class="btn" hidden>Send a test notification</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="rules-h">
+        <div class="panel-head"><h2 id="rules-h" class="type-app-h4">How EVIE decides</h2></div>
+        <div class="panel-body"><ul id="rules" class="rules"></ul></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="appearance-menu" class="app-menu" popover role="dialog" aria-label="Appearance">
+    <div class="menu-heading"><strong>Appearance</strong><span class="type-caption">Theme: <span id="theme-current">System</span></span></div>
+    <fieldset class="theme-options">
+      <legend class="visually-hidden">Theme</legend>
+      <label><input type="radio" name="theme" value="system"><span class="theme-check" aria-hidden="true">✓</span> System</label>
+      <label><input type="radio" name="theme" value="light"><span class="theme-check" aria-hidden="true">✓</span> Light</label>
+      <label><input type="radio" name="theme" value="dark"><span class="theme-check" aria-hidden="true">✓</span> Dark</label>
+    </fieldset>
+    <div class="menu-footer"><span class="type-caption">Saved on this device.</span><a href="fonts/Roboto-OFL.txt" target="_blank" rel="noopener">Roboto font licence ↗</a></div>
+  </div>
+
+  <dialog id="navigation-dialog" class="navigation-dialog" aria-labelledby="navigation-title">
+    <button class="close icon-button" type="button" data-close-navigation aria-label="Close navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></button>
+    <h2 id="navigation-title" class="type-app-h4">101 Science Park Hub</h2>
+    <div id="mobile-navigation"></div>
+  </dialog>
+
+  <dialog id="form-dialog" aria-labelledby="form-title">
+    <form id="entry-form" novalidate>
+      <h2 id="form-title">Check in</h2>
+      <p id="form-sub" class="muted"></p>
+      <label><span id="name-label">Your name</span>
+        <input name="name" autocomplete="name" maxlength="40" required>
+      </label>
+      <label hidden><span id="email-label">Email for alerts (optional)</span>
+        <input name="email" type="email" autocomplete="email" maxlength="254" inputmode="email">
+        <small class="hint">Only used today, to tell you when a charger is ready or it's time to swap. Deleted overnight.</small>
+      </label>
+      <div class="two">
+        <label>Current range (miles)
+          <input name="currentRange" type="number" inputmode="numeric" min="0" max="1000" required>
+        </label>
+        <label>Target range (miles)
+          <input name="targetRange" type="number" inputmode="numeric" min="0" max="1000" required>
+        </label>
+      </div>
+      <p id="form-estimate" class="estimate" aria-live="polite"></p>
+      <p id="form-error" class="error" role="alert"></p>
+      <div class="actions end">
+        <button type="button" class="btn" data-action="close-form">Cancel</button>
+        <button type="submit" class="btn primary" id="form-submit">Check in</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
