@@ -155,13 +155,20 @@ EVIE picks the mode itself: it uses server mode if `api/state` responds, and dem
 
 ## Design
 
-The UI follows the AVEVA-inspired application style:
+The UI uses a **wayfinding** style, taking its cues from the signage in a science park building:
 
-- **Fonts:** self-hosted Roboto (`public/fonts`, OFL licence included).
-- **Colours:** the semantic tokens in `public/tokens.css`.
-- **Layout:** a fixed 64 px app bar and a 240 px navigation rail (a navigation dialog at 760 px and below). The page has metric cards, charger cards with status badges, and the queue as a table.
-- **Controls:** buttons and cards with 4 px corners, and focus outlines in the interaction colour.
-- **Theme:** **System** (the default, follows `prefers-color-scheme`), **Light** or **Dark**, chosen from the ◐ menu in the app bar. `public/theme.js` saves the choice in `localStorage` and keeps open tabs in sync.
+- **Palette:** warm paper (`#F4F1EA`) and near-black ink (`#111820`). Each area has one signage colour, like a building zone: **EV charging** is green, the **Visitor centre** is signal orange, and **Settings** is graphite. `body[data-zone]` sets `--zone`, which colours page icons, the active tab, primary buttons and highlights. All tokens are in `public/tokens.css`.
+- **Type:** self-hosted Roboto (`public/fonts`, OFL licence included). Display headings use Light 300 at large sizes, labels use small uppercase tracked overlines, and charger numbers and times use tabular figures.
+- **Signature elements:**
+  - The home page shows a giant outlined "101" and a dark lobby-style **Directory** board with live status.
+  - Each charger card has a large charger number and a coloured status band: green free, blue charging, red swap requested.
+  - The fire alarm steps are big numbered signage steps.
+- **Layout:** a sticky top bar with Home, EV charging and Visitor centre. On phones (760 px and below) these become a **bottom tab bar** within thumb reach. Content is centred at up to 1,200 px.
+- **Details:**
+  - 2 px corners, strong ink focus outlines, and 44 px minimum touch targets.
+  - A gentle staggered fade-in on page load, switched off for `prefers-reduced-motion`.
+  - A print stylesheet for the Visitor centre.
+- **Theme:** **System** (the default, follows `prefers-color-scheme`), **Light** or **Dark**, chosen from the ◐ menu. `public/theme.js` saves the choice in `localStorage` and keeps open tabs in sync.
 
 Code layout:
 

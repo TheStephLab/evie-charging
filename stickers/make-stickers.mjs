@@ -31,10 +31,10 @@ if (!(COUNT >= 1 && COUNT <= 99)) {
   process.exit(1);
 }
 
-const TEAL = '#4D5EE0'; // AVEVA interaction blue
-const TINT = '#EAECFB';
-const INK = '#000000';
-const MUTED = '#515559';
+const TEAL = '#0B7A52'; // Hub EV-charging zone green
+const TINT = '#DDF3E8';
+const INK = '#111820';
+const MUTED = '#4B5563';
 const FONT = "'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 const BOLT = 'M36 8 16 36h14l-4 20 22-30H34z'; // same mark as public/icon.svg (64×64 box)
 

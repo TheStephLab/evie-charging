@@ -126,6 +126,7 @@ function renderMetrics(v) {
     metric('In the queue', waiting, full ? `Full (maximum ${v.config.maxQueue})` : waiting ? 'Waiting for a charger' : 'Nobody waiting'),
     metric('Next charger', next, nextNote),
   ].join('');
+  $('#metrics .metric')?.classList.toggle('lit', free > 0);
   $('#chargers-count').textContent = `${free} of ${v.chargers.length} free`;
   $('#queue-count').textContent = waiting ? (full ? `${waiting} waiting · full` : `${waiting} waiting`) : '';
   $('#queue-count').className = `badge${full ? ' amber' : ''}`;
@@ -230,7 +231,7 @@ function chargerCard(ch, me, mine) {
 
   const highlight = manages || (nextUp && (nextUp.owner === me || nextUp.addedBy === me));
   return `<article class="charger-card${highlight ? ' mine' : ''}" data-status="${ch.status}" aria-labelledby="ch-${ch.id}">
-    <header><h3 id="ch-${ch.id}">Charger ${ch.id}</h3><span class="badge ${tone}">${label}</span></header>
+    <header><h3 id="ch-${ch.id}"><span class="ch-label">Charger</span> <span class="ch-num">${ch.id}</span></h3><span class="badge ${tone}">${label}</span></header>
     ${body}
     <div class="actions">${actions}</div>
   </article>`;

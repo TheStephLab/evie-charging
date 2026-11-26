@@ -17,7 +17,7 @@
     const state=getState();
     root.dataset.theme=state.effective;
     root.dataset.themePreference=state.preference;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content',state.effective==='dark'?'#151719':'#FFFFFF');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content',state.effective==='dark'?'#0C1015':'#F4F1EA');
     window.dispatchEvent(new CustomEvent('evie-theme-change',{detail:state}));
   };
   window.evieAppearance=Object.freeze({

@@ -15,7 +15,7 @@ $('#updated').textContent = data.updatedAt ? `Updated ${new Date(data.updatedAt)
 
 $('#visitor-sections').innerHTML = VISITOR_SECTIONS.map(
   (s) => `<section class="panel" aria-labelledby="${s.id}-h">
-    <div class="panel-head"><h2 id="${s.id}-h" class="type-app-h4">${esc(s.title)}</h2></div>
+    <div class="panel-head"><h2 id="${s.id}-h">${esc(s.title)}</h2></div>
     <div class="panel-body"><dl class="info-list">${s.fields
       .map(
         (fd) =>
