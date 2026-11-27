@@ -12,7 +12,6 @@ import {
   checkOut,
   joinQueue,
   leaveQueue,
-  updateSession,
   tick,
   publicState,
 } from './src/scheduler.js';
@@ -43,12 +42,9 @@ const num = (key, fallback) => {
 const minSession = num('MIN_SESSION_MINUTES', DEFAULT_CONFIG.minSessionMinutes);
 const BASE = Object.freeze({
   chargers: Math.round(num('CHARGERS', DEFAULT_CONFIG.chargers)),
-  chargerKw: num('CHARGER_KW', DEFAULT_CONFIG.chargerKw),
-  milesPerKwh: num('MILES_PER_KWH', DEFAULT_CONFIG.milesPerKwh),
   minSessionMinutes: minSession,
   maxSessionMinutes: Math.max(minSession, num('MAX_SESSION_MINUTES', DEFAULT_CONFIG.maxSessionMinutes)),
   swapGraceMinutes: num('SWAP_GRACE_MINUTES', DEFAULT_CONFIG.swapGraceMinutes),
-  urgentRangeMiles: num('URGENT_RANGE_MILES', DEFAULT_CONFIG.urgentRangeMiles),
   maxQueue: Math.round(num('MAX_QUEUE', DEFAULT_CONFIG.maxQueue)),
 });
 
@@ -265,7 +261,6 @@ function notify(events) {
 const ACTIONS = {
   '/api/checkin': checkIn,
   '/api/checkout': checkOut,
-  '/api/session/update': updateSession,
   '/api/queue/join': joinQueue,
   '/api/queue/leave': leaveQueue,
 };

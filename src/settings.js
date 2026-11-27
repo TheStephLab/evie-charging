@@ -1,12 +1,12 @@
 // Feature flags and tunables, shared by the server and the browser (demo mode).
-// Basic EVIE (always on): check in to a charger, and the queue with current/target range.
+// Basic EVIE (always on): check in to a charger, and the queue (each saying top-up or need it to get home).
 
 export const FEATURES = [
   {
     key: 'advancedScheduling',
     label: 'Advanced scheduling',
     description:
-      'Guaranteed charging time, need-based swap requests, a maximum session length and low-range queue priority. When off, the queue is first come, first served and nobody is asked to swap.',
+      'Guaranteed charging time and swap requests: people who need a charge to get home go first in the queue, top-ups are asked to swap first, and someone who needs it to get home only gives way to someone else who does. When off, the queue is first come, first served and nobody is asked to swap.',
   },
   {
     key: 'addSomeoneElse',
@@ -38,7 +38,6 @@ export const TUNING = [
   { key: 'minSessionMinutes', label: 'Guaranteed charging time', unit: 'min', min: 15, max: 480, advanced: true },
   { key: 'maxSessionMinutes', label: 'First to be asked to swap after', unit: 'min', min: 15, max: 720, advanced: true },
   { key: 'swapGraceMinutes', label: 'Time to unplug after a swap request', unit: 'min', min: 5, max: 60, advanced: true },
-  { key: 'urgentRangeMiles', label: 'Low-range priority below', unit: 'mi', min: 0, max: 200, advanced: true },
 ];
 
 // Demo mode (static hosting) keeps settings in this browser. A static site can't keep a secret,

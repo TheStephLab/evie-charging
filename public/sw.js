@@ -1,6 +1,6 @@
 // App-shell cache so EVIE opens instantly (and shows last-known state) on flaky office Wi-Fi.
 // Paths are relative to the service worker, so this works at / and under /Evie/ on GitHub Pages.
-const CACHE = 'hub-v6';
+const CACHE = 'hub-v7';
 const SHELL = ['./', 'charging.html', 'visitor.html', 'settings.html', 'hub.js', 'visitor-page.js', 'visitor-data.js', 'visitor.js', 'app.js', 'backend.js', 'shell.js', 'theme.js', 'settings-page.js', 'scheduler.js', 'settings.js', 'tokens.css', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'fonts/Roboto-Regular.ttf', 'fonts/Roboto-Medium.ttf'];
 const scope = () => new URL(self.registration.scope);
 

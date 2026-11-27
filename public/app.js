@@ -109,9 +109,8 @@ function renderMetrics(v) {
   let next = 'Now';
   let nextNote = 'A charger is free';
   if (!free) {
-    const adv = v.features?.advancedScheduling;
     const times = v.chargers.map((ch) =>
-      ch.session ? (ch.session.swapRequestedAt ? t : Math.max(t, adv ? ch.session.eligibleAt : ch.session.reachTargetAt)) : t,
+      ch.session ? (ch.session.swapRequestedAt ? t : Math.max(t, ch.session.eligibleAt)) : t,
     );
     const soonest = Math.min(...times);
     next = soonest - t < 60_000 ? 'Soon' : clock(soonest);
@@ -120,9 +119,10 @@ function renderMetrics(v) {
   const metric = (title, value, note, suffix = '') =>
     `<div class="metric"><div class="metric-top">${title}</div><strong>${value}${suffix ? `<small>${suffix}</small>` : ''}</strong><small>${note}</small></div>`;
   const full = queueFull(v);
+  const required = v.chargers.filter((ch) => ch.session?.need === 'required').length;
   $('#metrics').innerHTML = [
     metric('Free now', free, free ? 'Plug in and check in' : 'All chargers in use', `of ${v.chargers.length}`),
-    metric('Charging', charging, `${v.config.chargerKw} kW ≈ ${Math.round(v.config.chargerKw * v.config.milesPerKwh)} mi per hour`),
+    metric('Charging', charging, charging ? `${required} need it to get home · ${charging - required} top-up` : 'Nobody charging'),
     metric('In the queue', waiting, full ? `Full (maximum ${v.config.maxQueue})` : waiting ? 'Waiting for a charger' : 'Nobody waiting'),
     metric('Next charger', next, nextNote),
   ].join('');
@@ -198,34 +198,28 @@ function chargerCard(ch, me, mine) {
       actions += `<button class="btn" data-action="checkin" data-charger="${ch.id}" data-entry="${q.id}">Check ${esc(q.name)} in</button>`;
     }
   } else {
-    const pct = Math.max(0, Math.min(100, ((s.estRange - s.startRange) / (s.targetRange - s.startRange)) * 100));
     const t = now();
+    const adv = app.view.features?.advancedScheduling;
     const who = isMine ? 'Please unplug' : s.addedBy === me ? `Ask ${esc(s.name)} to unplug` : 'Asked to unplug';
-    let note;
+    let note = '';
     if (s.swapRequestedAt) {
       const due = s.swapRequestedAt + app.view.config.swapGraceMinutes * 60_000;
       note = `<p class="note warn">${who}${s.swapFor ? ` for ${esc(s.swapFor)}` : ''} — ${due > t ? `within ${countdown(due)}` : 'overdue'}.</p>`;
-    } else if (s.reachedTarget) {
-      note = app.view.features?.advancedScheduling
-        ? '<p class="note">Target reached — will be asked to swap if someone is waiting.</p>'
-        : '<p class="note">Target reached — please unplug if someone is waiting.</p>';
-    } else if (!app.view.features?.advancedScheduling) {
-      note = '';
-    } else if (t < s.protectedUntil) {
+    } else if (adv && t < s.protectedUntil) {
       note = `<p class="note">Guaranteed until ${clock(s.protectedUntil)}.</p>`;
-    } else {
-      note = '<p class="note">Guaranteed time used — may be asked to swap.</p>';
+    } else if (adv) {
+      note = `<p class="note">${s.need === 'required' ? 'Guaranteed time used. Only asked to swap for someone who also needs it to get home.' : 'Guaranteed time used. May be asked to swap if someone is waiting.'}</p>`;
     }
+    const guaranteed = app.view.config.minSessionMinutes * 60_000;
+    const pct = Math.max(0, Math.min(100, ((t - s.startedAt) / guaranteed) * 100));
     body = `<p class="who">${esc(s.name)}${youTag(s, me)}</p>
-      <progress max="100" value="${pct.toFixed(0)}" aria-label="Charge progress towards target">${pct.toFixed(0)}%</progress>
+      <p>${needBadge(s.need)}</p>
       <dl class="facts">
-        <dt>Range</dt><dd>~${s.estRange} of ${s.targetRange} mi</dd>
         <dt>Since</dt><dd>${clock(s.startedAt)} (${mins(t - s.startedAt)})</dd>
-        <dt>Target by</dt><dd>~${clock(s.reachTargetAt)}</dd>
-      </dl>${note}`;
+      </dl>
+      ${adv && !s.swapRequestedAt ? `<progress max="100" value="${pct.toFixed(0)}" aria-label="Guaranteed charging time used">${pct.toFixed(0)}%</progress>` : ''}${note}`;
     actions = manages
-      ? `<button class="btn ${s.swapRequestedAt ? 'primary' : ''}" data-action="checkout" data-charger="${ch.id}">${isMine ? 'Unplugged — check out' : `${esc(s.name)} unplugged`}</button>
-         <button class="btn ghost" data-action="update" data-charger="${ch.id}">Update range</button>`
+      ? `<button class="btn ${s.swapRequestedAt ? 'primary' : ''}" data-action="checkout" data-charger="${ch.id}">${isMine ? 'Unplugged — check out' : `${esc(s.name)} unplugged`}</button>`
       : `<button class="btn link" data-action="free" data-charger="${ch.id}" data-name="${esc(s.name)}">They've left — mark free</button>`;
   }
 
@@ -246,8 +240,8 @@ function queueItem(q, me) {
       : `Expected ~${clock(q.eta)} <span class="muted">(in ${mins(q.eta - now())})</span>`;
   return `<tr class="${manages ? 'mine' : ''}">
     <td class="pos">${q.position}</td>
-    <td><span class="who">${esc(q.name)}</span>${youTag(q, me)}${q.urgent ? ' <span class="badge red">Low range</span>' : ''}</td>
-    <td class="range">${q.currentRange} → ${q.targetRange} mi</td>
+    <td><span class="who">${esc(q.name)}</span>${youTag(q, me)}</td>
+    <td class="need-cell">${needBadge(q.need)}</td>
     <td>${status}</td>
     <td class="act">${manages
       ? `<button class="btn" data-action="leave" data-id="${q.id}">${q.owner === me ? 'Leave' : 'Remove'}</button>`
@@ -271,7 +265,7 @@ function renderAlerts(v, mine, myEntry) {
   if (mine?.session.swapRequestedAt) {
     const s = mine.session;
     alert(
-      `<strong>Time to swap, please.</strong><br>${s.swapFor ? esc(s.swapFor) : 'Someone'} is waiting for charger ${mine.id}. You've had ${mins(now() - s.startedAt)} and ~${s.estRange} mi.`,
+      `<strong>Time to swap, please.</strong><br>${s.swapFor ? esc(s.swapFor) : 'Someone'} is waiting for charger ${mine.id}. You've been charging for ${mins(now() - s.startedAt)}.`,
       `<button class="btn primary" data-action="checkout" data-charger="${mine.id}">Unplugged — check out</button>`,
     );
     ping(`swap:${s.id}:${s.swapRequestedAt}`, 'Please move your car', `${s.swapFor || 'Someone'} needs charger ${mine.id}.`);
@@ -298,29 +292,34 @@ function renderAlerts(v, mine, myEntry) {
 }
 
 function renderRules(c) {
-  const mph = Math.round(c.chargerKw * c.milesPerKwh);
   const f = app.view?.features ?? {};
-  const rules = ['Mornings are first come, first served: plug into any free charger and check in.'];
+  const rules = [
+    'Mornings are first come, first served: plug into any free charger and check in.',
+    "When you check in or join the queue, say whether it's a <strong>top-up</strong> or you <strong>need it to get home</strong>. Please be honest, it's what keeps this fair.",
+  ];
   if (f.advancedScheduling) {
     rules.push(
-      `Everyone gets at least <strong>${mins(c.minSessionMinutes * 60_000)}</strong> before they can be asked to swap (sooner only if they've reached their target).`,
-      `When someone is waiting, the person who needs the <strong>fewest extra miles</strong> is asked to swap; anyone over <strong>${mins(c.maxSessionMinutes * 60_000)}</strong> goes first.`,
+      `Everyone gets at least <strong>${mins(c.minSessionMinutes * 60_000)}</strong> before they can be asked to swap.`,
+      `When someone is waiting, <strong>top-ups are asked to swap first</strong>. Anyone charging for over <strong>${mins(c.maxSessionMinutes * 60_000)}</strong> goes before that.`,
+      'People who need a charge to get home go to the front of the queue, and are only asked to swap for someone else who needs it to get home.',
     );
   } else {
     rules.push('If all chargers are busy, join the queue. Please unplug and check out once you have the charge you need.');
   }
   rules.push("Chargers are never reserved. When one frees up, the next person in the queue is alerted, but it goes to whoever plugs in and checks in first.");
-  if (f.advancedScheduling) rules.push(`People under ${c.urgentRangeMiles} mi of range move to the front of the queue.`);
   rules.push(`Up to <strong>${c.maxQueue}</strong> people can wait in the queue. People already charging don't count towards this.`);
   if (f.addSomeoneElse) {
     rules.push("You can add a colleague to the queue. You'll get their alerts, and they can also claim their charger by checking in with the same name.");
   }
   if (f.email) rules.push("Add your email when you check in or queue, and EVIE will email you when it's your turn. It's deleted overnight.");
-  rules.push(
-    `Estimates assume ${c.chargerKw} kW ≈ ${mph} miles per hour of charging. Use “Update range” to correct them.`,
-    'No accounts: your device remembers you, and everything resets overnight.',
-  );
+  rules.push('No accounts: your device remembers you, and everything resets overnight.');
   $('#rules').innerHTML = rules.map((r) => `<li>${r}</li>`).join('');
+}
+
+function needBadge(need) {
+  return need === 'required'
+    ? '<span class="badge need-required">Needs it to get home</span>'
+    : '<span class="badge need-topup">Top-up</span>';
 }
 
 function tickCountdowns() {
@@ -420,104 +419,84 @@ function setupNotify() {
 
 // ---- form ----------------------------------------------------------------------
 const FORM_COPY = {
-  checkin: { title: (id) => `Check in to charger ${id}`, submit: 'Check in', action: 'checkin' },
-  queue: { title: () => 'Join the queue', submit: 'Join queue', action: 'queue/join' },
-  guest: { title: () => 'Add someone to the queue', submit: 'Add to queue', action: 'queue/join' },
-  update: { title: (id) => `Update charger ${id}`, submit: 'Save', action: 'session/update' },
+  checkin: { title: (id) => `Check in to charger ${id}`, action: 'checkin' },
+  queue: { title: () => 'Join the queue', action: 'queue/join' },
+  guest: { title: () => 'Add someone to the queue', action: 'queue/join' },
 };
 
 function openForm(mode, chargerId, entryId) {
   const v = app.view;
   const form = $('#entry-form');
   const copy = FORM_COPY[mode];
-  const charger = v.chargers.find((ch) => ch.id === chargerId);
   const proxyFor = mode === 'checkin' && entryId ? v.queue.find((q) => q.id === entryId && q.addedBy === v.me) : null;
   app.form = { mode, chargerId, proxy: Boolean(proxyFor), entryId: proxyFor?.id };
   form.reset();
   $('#form-title').textContent = proxyFor ? `Check ${proxyFor.name} in to charger ${chargerId}` : copy.title(chargerId);
-  $('#form-submit').textContent = copy.submit;
   $('#form-error').textContent = '';
   $('#form-sub').textContent =
     {
       queue: "EVIE will alert you here when it's your turn — keep this page open.",
       guest: "For a colleague without EVIE. You'll get their alerts, so please pass them on. They can also check in themselves using the same name.",
-    }[mode] ?? (proxyFor ? "Confirm their range. You'll get their swap alerts." : '');
+    }[mode] ?? (proxyFor ? "You'll get their swap alerts, so please pass them on." : '');
 
   const remembered = JSON.parse(localStorage.getItem('evie.me') || '{}');
-  if (mode !== 'guest') {
-    form.name.value = remembered.name || '';
-    form.targetRange.value = remembered.targetRange || '';
-  }
-  const entry = proxyFor ?? (mode !== 'guest' && v.queue.find((q) => q.owner === v.me));
-  if (entry) {
-    form.name.value = entry.name;
-    form.currentRange.value = entry.currentRange;
-    form.targetRange.value = entry.targetRange;
-  }
-  if (mode === 'update' && charger?.session) {
-    form.currentRange.value = charger.session.estRange;
-    form.targetRange.value = charger.session.targetRange;
-  }
+  const entry = proxyFor ?? (mode !== 'guest' ? v.queue.find((q) => q.owner === v.me) : null);
+  form.name.value = entry?.name ?? (mode !== 'guest' ? remembered.name || '' : '');
   form.name.readOnly = Boolean(proxyFor);
-  form.name.closest('label').hidden = mode === 'update';
   $('#name-label').textContent = mode === 'guest' || proxyFor ? 'Their name' : 'Your name';
-  const showEmail = Boolean(v.features?.email) && mode !== 'update' && !proxyFor;
+  $('#need-legend').textContent = mode === 'guest' || proxyFor ? 'What kind of charge do they need?' : 'What kind of charge is it?';
+  $('#need-hint').textContent = { checkin: 'Tap one to check in.', queue: 'Tap one to join the queue.', guest: 'Tap one to add them to the queue.' }[mode];
+  form.querySelectorAll('.need-btn').forEach((btn) => {
+    btn.classList.toggle('chosen', btn.value === entry?.need);
+    btn.disabled = false;
+  });
+  const showEmail = Boolean(v.features?.email) && !proxyFor;
   form.email.closest('label').hidden = !showEmail;
   form.email.value = showEmail && mode !== 'guest' ? remembered.email || '' : '';
   $('#email-label').textContent = mode === 'guest' ? 'Their email (optional)' : 'Email for alerts (optional)';
-  updateEstimate();
   $('#form-dialog').showModal();
-  (mode === 'update' || form.name.value ? form.currentRange : form.name).focus();
-}
-
-function updateEstimate() {
-  const form = $('#entry-form');
-  const c = app.view?.config;
-  const cur = Number(form.currentRange.value);
-  const tgt = Number(form.targetRange.value);
-  if (!c || !form.currentRange.value || !form.targetRange.value || tgt <= cur) {
-    $('#form-estimate').textContent = '';
-    return;
-  }
-  const ms = ((tgt - cur) / (c.chargerKw * c.milesPerKwh)) * 3_600_000;
-  const over = ms > c.minSessionMinutes * 60_000;
-  $('#form-estimate').textContent =
-    `≈ ${mins(ms)} to add ${tgt - cur} mi.` +
-    (over ? ` Guaranteed ${mins(c.minSessionMinutes * 60_000)}; after that a swap may be requested if someone is waiting.` : '');
+  const chosen = form.querySelector('.need-btn.chosen');
+  (form.name.value ? (chosen ?? form.querySelector('.need-btn')) : form.name).focus();
 }
 
 async function submitForm(e) {
   e.preventDefault();
   const form = e.currentTarget;
   const { mode, chargerId, proxy, entryId } = app.form;
+  const need = e.submitter?.value;
+  if (!need) return; // Enter in the name field: wait for a choice.
+  if (!form.name.value.trim()) {
+    $('#form-error').textContent = 'Please enter a name.';
+    return form.name.focus();
+  }
   const body = {
     name: form.name.value,
-    currentRange: form.currentRange.value,
-    targetRange: form.targetRange.value,
+    need,
     chargerId,
     entryId,
     forSomeoneElse: mode === 'guest',
     email: form.email.closest('label').hidden ? undefined : form.email.value.trim(),
   };
-  const submit = $('#form-submit');
-  submit.disabled = true;
+  const buttons = form.querySelectorAll('.need-btn');
+  buttons.forEach((b) => (b.disabled = true));
   try {
     await api(FORM_COPY[mode].action, body);
     if ((mode === 'checkin' || mode === 'queue') && !proxy) {
-      const me = { name: body.name.trim(), targetRange: body.targetRange };
-      if (body.email !== undefined) me.email = body.email;
-      else me.email = JSON.parse(localStorage.getItem('evie.me') || '{}').email;
+      const me = { name: body.name.trim() };
+      me.email = body.email !== undefined ? body.email : JSON.parse(localStorage.getItem('evie.me') || '{}').email;
       localStorage.setItem('evie.me', JSON.stringify(me));
     }
     $('#form-dialog').close();
-    toast({ queue: "You're in the queue.", guest: `${body.name.trim()} is in the queue.` }[mode] ?? 'Saved.');
+    toast(
+      { queue: "You're in the queue.", guest: `${body.name.trim()} is in the queue.` }[mode] ??
+        (proxy ? `${form.name.value.trim()} is checked in.` : 'Checked in. Happy charging!'),
+    );
   } catch (err) {
     $('#form-error').textContent = err.message;
   } finally {
-    submit.disabled = false;
+    buttons.forEach((b) => (b.disabled = false));
   }
 }
-
 function toast(msg) {
   const el = $('#toast');
   el.textContent = msg;
@@ -537,7 +516,6 @@ document.addEventListener('click', async (e) => {
     if (action === 'checkin') return openForm('checkin', chargerId, btn.dataset.entry);
     if (action === 'queue') return openForm('queue');
     if (action === 'guest') return openForm('guest');
-    if (action === 'update') return openForm('update', chargerId);
     if (action === 'checkout') {
       await api('checkout', { chargerId });
       return toast('Checked out. Thanks!');
@@ -567,7 +545,13 @@ document.addEventListener('click', async (e) => {
 });
 
 $('#entry-form').addEventListener('submit', submitForm);
-$('#entry-form').addEventListener('input', updateEstimate);
+// Enter in a text field would otherwise submit the first choice (Top-up) by default.
+$('#entry-form').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+  e.preventDefault();
+  const form = e.currentTarget;
+  (form.querySelector('.need-btn.chosen') ?? form.querySelector('.need-btn')).focus();
+});
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) app.audio?.resume?.();
 });

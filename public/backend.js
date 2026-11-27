@@ -55,7 +55,6 @@ async function localBackend({ clientId, onView, onStatus }) {
   const FNS = {
     checkin: S.checkIn,
     checkout: S.checkOut,
-    'session/update': S.updateSession,
     'queue/join': S.joinQueue,
     'queue/leave': S.leaveQueue,
   };

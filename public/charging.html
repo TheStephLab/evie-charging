@@ -83,7 +83,7 @@
         <div class="table-wrap">
           <table class="queue-table">
             <thead>
-              <tr><th scope="col">#</th><th scope="col">Name</th><th scope="col">Range</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+              <tr><th scope="col">#</th><th scope="col">Name</th><th scope="col">Charge</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
             </thead>
             <tbody id="queue"></tbody>
           </table>
@@ -135,19 +135,20 @@
         <input name="email" type="email" autocomplete="email" maxlength="254" inputmode="email">
         <small class="hint">Only used today, to tell you when a charger is ready or it's time to swap. Deleted overnight.</small>
       </label>
-      <div class="two">
-        <label>Current range (miles)
-          <input name="currentRange" type="number" inputmode="numeric" min="0" max="1000" required>
-        </label>
-        <label>Target range (miles)
-          <input name="targetRange" type="number" inputmode="numeric" min="0" max="1000" required>
-        </label>
-      </div>
-      <p id="form-estimate" class="estimate" aria-live="polite"></p>
+      <fieldset class="need-choice">
+        <legend><span id="need-legend">What kind of charge is it?</span> <span id="need-hint" class="need-hint">Tap one to check in.</span></legend>
+        <button type="submit" name="need" value="convenience" class="need-btn topup">
+          <span class="need-title">Top-up</span>
+          <span class="need-desc">Nice to have. Happy to swap if someone needs it.</span>
+        </button>
+        <button type="submit" name="need" value="required" class="need-btn required">
+          <span class="need-title">Need it to get home</span>
+          <span class="need-desc">Not enough charge to get home safely.</span>
+        </button>
+      </fieldset>
       <p id="form-error" class="error" role="alert"></p>
       <div class="actions end">
         <button type="button" class="btn" data-action="close-form">Cancel</button>
-        <button type="submit" class="btn primary" id="form-submit">Check in</button>
       </div>
     </form>
   </dialog>

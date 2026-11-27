@@ -31,7 +31,7 @@ EVIE shares the 7 kW chargers fairly. Sticker links (`/c/N`) open **EV charging 
 
 **Basic, always on:**
 
-- **Check in** to a charger with your name, current range and target range.
+- **Check in** in two taps: enter your name (remembered on your device), then choose **Top-up** (nice to have, happy to swap) or **Need it to get home** (not enough charge to get home safely). No range numbers, no accounts.
 - **Queue** when all chargers are busy. It's first come, first served, and shows an estimated wait. Chargers are **never reserved**: when one frees up, the next person in the queue is alerted, but it goes to whoever plugs in and checks in first. The queue holds up to **6 people waiting**; people already charging don't count. The limit is configurable in Settings, and Join queue is disabled when the queue is full.
 - **Honour-system fallbacks.** Anyone can "mark free" a charger someone forgot to check out of, or remove a stale queue entry.
 - In-page alerts: a banner and a 🔔 in the tab title when a charger is ready for you or it's your turn to swap.
@@ -40,13 +40,13 @@ EVIE shares the 7 kW chargers fairly. Sticker links (`/c/N`) open **EV charging 
 
 | Flag | What it adds |
 |---|---|
-| Advanced scheduling | A guaranteed charging time (2 h). Need-based swap requests: once someone is waiting, the first person in this list is asked to unplug: anyone over the maximum time (4 h), then anyone who has reached their target, then whoever needs the fewest extra miles. Low-range queue priority (under 30 mi). |
+| Advanced scheduling | A guaranteed charging time (2 h). People who **need it to get home** go to the front of the queue. Swap requests: once someone is waiting and the guaranteed time is up, the first person in this list is asked to unplug: anyone over the maximum time (4 h), then **top-ups** before people who need it to get home, then whoever plugged in earliest. Someone who needs it to get home is only asked to swap for someone else who does (or once over the maximum time), so a top-up never bumps them. |
 | Add someone else to the queue | Queue a colleague (up to 3 each). You get their alerts and can check them in and out. They can also claim their charger themselves by checking in with the same name. |
 | Browser notifications | A Notifications panel for subscribing to system notifications (needs HTTPS), with sound and vibration. |
 | Email notifications | An optional email field. EVIE emails people when a charger is ready or it's their turn to swap. Needs SMTP (see below). |
 | Team chat webhook | Posts free-charger alerts and swap requests to a Teams, Slack or Google Chat channel. Paste the webhook URL in Settings (see below). |
 
-Settings also cover the timings: the guaranteed time, maximum time, time to unplug, the low-range threshold, and the maximum queue length.
+Settings also cover the timings (the guaranteed time, maximum time and time to unplug) and the maximum queue length.
 
 ## Settings and the admin token
 
@@ -146,8 +146,7 @@ EVIE picks the mode itself: it uses server mode if `api/state` responds, and dem
 | `SITE_NAME` | `101 Science Park` | Site name used in emails |
 | `ADMIN_TOKEN` | generated | Admin token for Settings (otherwise `data/admin-token`) |
 | `CHARGERS` | `3` | Number of chargers |
-| `CHARGER_KW` / `MILES_PER_KWH` | `7` / `3.5` | Used for range estimates |
-| `MIN_SESSION_MINUTES`, `MAX_SESSION_MINUTES`, `SWAP_GRACE_MINUTES`, `URGENT_RANGE_MILES`, `MAX_QUEUE` | `120`, `240`, `15`, `30`, `6` | Default timings; Settings can override them |
+| `MIN_SESSION_MINUTES`, `MAX_SESSION_MINUTES`, `SWAP_GRACE_MINUTES`, `MAX_QUEUE` | `120`, `240`, `15`, `6` | Default timings; Settings can override them |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_ALLOW_INSECURE` | – | Email (see above) |
 | `WEBHOOK_URL`, `WEBHOOK_FORMAT` | –, `auto` | Default webhook (a URL saved in Settings takes priority); format `auto`, `teams` or `text` |
 | `DATA_FILE` | `./data/state.json` | Today's state; settings and the token are stored next to it |
