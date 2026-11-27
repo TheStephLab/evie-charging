@@ -1,27 +1,36 @@
 # 101 Science Park Hub
 
-A small, fast visitor portal for 101 Science Park. It has no accounts and no database, and nothing about people lasts past today.
+A small, fast information hub for 101 Cambridge Science Park. It has no accounts and no database, and nothing about people lasts past today.
 
 **Live demo:** <https://thestephlab.github.io/evie-charging/>. Settings are at [`settings.html`](https://thestephlab.github.io/evie-charging/settings.html); the demo token is `demo`.
 
 | Page | What it's for |
 |---|---|
-| **Home** (`index.html`) | Links to each area, live charger availability, and quick information (assembly point, first aid, reception, Wi-Fi, parking) |
-| **EV charging** (`charging.html`) | EVIE: check in to a charger and the fair queue. Details below. |
-| **Visitor centre** (`visitor.html`) | Safety and emergencies (fire exits, assembly point, first aid, defibrillator, site contacts), standard "If the fire alarm sounds" steps, and on-site information (reception, Wi-Fi, toilets, parking, accessibility, food). Printable. |
+| **Home** (`index.html`) | Directory of every area with live charger availability, a **Book a desk or room** link to [Microsoft Places](https://places.cloud.microsoft/places/), grouped **useful links** (workplace help, hosting guests, getting here, the Park), and "Good to know" facts |
+| **Visitor centre** (`visitor.html`) | "If the fire alarm sounds" steps, safety (alarm test, assembly point, exits, first aid, AED), access and opening hours, getting here (car park, EV, cycling, train, bus, e-scooters), hosting guests (Verkada and internal visitors), accessibility and contacts. Printable. |
+| **Facilities** (`facilities.html`) | Showers and drying areas, lockers, print areas, drink stations, games area, Parents', Sensory and Prayer rooms, First Aid Room, IT Hub, bookable spaces, and a floor guide with neighbourhoods and room names |
+| **BYTE+BREW** (`restaurant.html`) | The on-site restaurant: what's served, allergen advice, Kanpla app offers and sign-up (Location ID **FJQU**), and meeting catering. No menu, as it changes. |
+| **EV charging** (`charging.html`) | EVIE: check in to a charger and the fair queue, plus the EV Community Teams channel. Details below. |
 | **Settings** (`settings.html`) | Protected by the admin token: feature flags, scheduling, email, Teams webhook, and the **visitor centre editor** |
+
+## Content source
+
+All site information comes from *Your Cambridge Science Park: 101, Phase One* (v1, 23 November 2026), including its links (Microsoft Places, Verkada, Workplace Experience, the EV Community Teams channel, transport and Cambridge Science Park pages). Links marked **AVEVA sign-in** need a work account.
+
+Individual colleagues' names and email addresses from the guide are deliberately left out, because this site and its repository are public. The site uses the Workplace Experience team mailbox and ticket link instead.
 
 ## Visitor centre content
 
-The site-specific details are **entered by you** in **Settings → Visitor centre**; EVIE doesn't ship any made-up locations.
+The Visitor centre and the home page's "Good to know" facts start with the **guide's wording**. You can override any topic in **Settings → Visitor centre**.
 
-- Each topic is plain text, up to 1,000 characters. Line breaks are kept, and phone numbers become tap-to-call links.
-- Any topic left blank shows "Not added yet. Please ask at reception."
-- On the server, the content is saved to `data/visitor.json`. It survives restarts and the midnight reset.
+- Each topic is plain text, up to 1,000 characters. Line breaks are kept, `[label](https://…)` becomes a link (only `https`, `http`, `mailto` and same-site pages), and phone numbers become tap-to-call links.
+- Clear a topic to go back to the guide's wording. Saving the guide's wording unchanged stores nothing, so future guide updates come through.
+- Guest Wi-Fi isn't in the guide, so it shows "Not added yet. Please ask at reception." until you fill it in.
+- On the server, overrides are saved to `data/visitor.json`. They survive restarts and the midnight reset.
 - Anyone can read it through `GET /api/visitor`. Saving uses `POST /api/admin/visitor` and needs the admin token.
 - In demo mode it's stored in your browser.
 
-Before going live, have the site's facilities or fire safety lead check the safety details.
+The Facilities and BYTE+BREW pages are static HTML; edit `public/facilities.html` and `public/restaurant.html` to change them.
 
 ## EV charging (EVIE)
 
@@ -156,13 +165,14 @@ EVIE picks the mode itself: it uses server mode if `api/state` responds, and dem
 
 The UI uses a **wayfinding** style, taking its cues from the signage in a science park building:
 
-- **Palette:** warm paper (`#F4F1EA`) and near-black ink (`#111820`). Each area has one signage colour, like a building zone: **EV charging** is green, the **Visitor centre** is signal orange, and **Settings** is graphite. `body[data-zone]` sets `--zone`, which colours page icons, the active tab, primary buttons and highlights. All tokens are in `public/tokens.css`.
+- **Palette:** warm paper (`#F4F1EA`) and near-black ink (`#111820`). Each area has one signage colour, like a building zone: the **Visitor centre** is signal orange, **Facilities** is signal blue, **BYTE+BREW** is raspberry, **EV charging** is green, and **Settings** is graphite. `body[data-zone]` sets `--zone`, which colours page icons, the active tab, primary buttons and highlights. All tokens are in `public/tokens.css`.
 - **Type:** self-hosted Roboto (`public/fonts`, OFL licence included). Display headings use Light 300 at large sizes, labels use small uppercase tracked overlines, and charger numbers and times use tabular figures.
 - **Signature elements:**
   - The home page shows a giant outlined "101" and a dark lobby-style **Directory** board with live status.
   - Each charger card has a large charger number and a coloured status band: green free, blue charging, red swap requested.
   - The fire alarm steps are big numbered signage steps.
-- **Layout:** a sticky top bar with Home, EV charging and Visitor centre. On phones (760 px and below) these become a **bottom tab bar** within thumb reach. Content is centred at up to 1,200 px.
+  - Facilities use pictogram signage tiles and a floor guide with lift-button level markers; the Kanpla Location ID is shown on a departure-board style panel with a copy button.
+- **Layout:** a sticky top bar with Home, Visitor centre, Facilities, BYTE+BREW and EV charging (shorter labels on narrower screens). On phones (760 px and below) these become a **bottom tab bar** within thumb reach. Content is centred at up to 1,200 px.
 - **Details:**
   - 2 px corners, strong ink focus outlines, and 44 px minimum touch targets.
   - A gentle staggered fade-in on page load, switched off for `prefers-reduced-motion`.

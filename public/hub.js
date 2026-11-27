@@ -1,23 +1,28 @@
 import { initShell } from './shell.js';
 import { connectBackend } from './backend.js';
-import { fetchVisitor, richText, MISSING } from './visitor-data.js';
+import { VISITOR_FIELDS } from './visitor.js';
+import { fetchVisitor, richText, visitorText, MISSING } from './visitor-data.js';
 
 initShell();
 const $ = (sel) => document.querySelector(sel);
 
-const fact = (label, value) => `<div><dt>${label}</dt><dd>${value ? richText(value) : `<span class="muted">${MISSING}</span>`}</dd></div>`;
+const QUICK = [
+  ['alarmTest'],
+  ['assemblyPoint'],
+  ['firstAid'],
+  ['defibrillator'],
+  ['hours'],
+  ['workplaceExperience', 'Need help?'],
+];
 
-const { data, mode } = await fetchVisitor();
-const f = data.fields;
-$('#quick-info').innerHTML = [
-  fact('Fire assembly point', f.assemblyPoint),
-  fact('First aid', f.firstAid),
-  fact('Reception', f.reception),
-  fact('Guest Wi-Fi', f.wifi),
-  fact('Parking', f.parking),
-].join('');
-const filled = Object.values(f).filter(Boolean).length;
-$('#visitor-status').textContent = filled ? `${filled} topics` : mode === 'demo' ? 'Add details in Settings' : '';
+const { data } = await fetchVisitor();
+const text = visitorText(data);
+const label = (key) => VISITOR_FIELDS.find((f) => f.key === key)?.label ?? key;
+$('#quick-info').innerHTML = QUICK.map(
+  ([key, title]) =>
+    `<div><dt>${title ?? label(key)}</dt><dd>${text[key] ? richText(text[key]) : `<span class="muted">${MISSING}</span>`}</dd></div>`,
+).join('');
+$('#visitor-status').textContent = data.updatedAt ? `Updated ${new Date(data.updatedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}` : '';
 
 // Live EV charger summary (same device id as the charging page).
 let clientId = localStorage.getItem('evie.client');

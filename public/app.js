@@ -556,10 +556,6 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) app.audio?.resume?.();
 });
 
-if ('serviceWorker' in navigator && window.isSecureContext) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
-
 setupNotify();
 render();
 setInterval(tickCountdowns, 1000);

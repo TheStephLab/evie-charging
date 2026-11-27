@@ -53,4 +53,6 @@ export function initShell() {
   initAppearance();
   initHeader();
   document.querySelectorAll('dialog').forEach(enableDialogLightDismiss);
+  // Offline support for every page of the hub (the worker caches the app shell).
+  if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
 }

@@ -28,9 +28,13 @@
   --ev: #0B7A52;
   --visitor: #C2410C;
   --admin: #3F4A5A;
+  --facilities: #1F4FB5;
+  --food: #B0185E;
   --ev-sign: #2FD58A;
   --visitor-sign: #FF7A45;
   --admin-sign: #C9D1DC;
+  --facilities-sign: #6EA8FF;
+  --food-sign: #FF6FA8;
 
   --ok: #0B7A52;   --ok-bg: #DDF3E8;
   --busy: #2648C9; --busy-bg: #E3E8FA;
@@ -64,8 +68,12 @@
   --ev: #3CDB98;
   --visitor: #FF8A5B;
   --admin: #B8C1CD;
+  --facilities: #7FB0FF;
+  --food: #FF7FB2;
   --ev-sign: #3CDB98;
   --visitor-sign: #FF8A5B;
+  --facilities-sign: #7FB0FF;
+  --food-sign: #FF7FB2;
 
   --ok: #3CDB98;   --ok-bg: rgb(60 219 152 / 13%);
   --busy: #8AA6FF; --busy-bg: rgb(138 166 255 / 15%);
@@ -80,3 +88,5 @@ body { --zone: var(--home); --zone-sign: var(--home); }
 body[data-zone="ev"] { --zone: var(--ev); --zone-sign: var(--ev-sign); }
 body[data-zone="visitor"] { --zone: var(--visitor); --zone-sign: var(--visitor-sign); }
 body[data-zone="admin"] { --zone: var(--admin); --zone-sign: var(--admin-sign); }
+body[data-zone="facilities"] { --zone: var(--facilities); --zone-sign: var(--facilities-sign); }
+body[data-zone="food"] { --zone: var(--food); --zone-sign: var(--food-sign); }

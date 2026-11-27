@@ -10,7 +10,7 @@ import {
 import { DEFAULT_CONFIG } from './scheduler.js';
 import { initShell } from './shell.js';
 import { VISITOR_SECTIONS, VISITOR_FIELDS, MAX_FIELD_LENGTH } from './visitor.js';
-import { fetchVisitor, saveDemoVisitor } from './visitor-data.js';
+import { fetchVisitor, saveDemoVisitor, visitorText } from './visitor-data.js';
 
 initShell();
 
@@ -188,12 +188,13 @@ async function renderVisitorEditor() {
   if (visitorLoaded) return; // keep unsaved edits when other settings are saved
   visitorLoaded = true;
   const { data } = await fetchVisitor();
+  const text = visitorText(data);
   $('#visitor-editor').innerHTML = VISITOR_SECTIONS.map(
     (s) => `<div class="editor-section"><h3>${esc(s.title)}</h3><div class="editor-grid">${s.fields
       .map(
         (f) => `<label>${esc(f.label)}
-          <textarea name="v-${f.key}" maxlength="${MAX_FIELD_LENGTH}" rows="3" aria-describedby="v-${f.key}-hint">${esc(data.fields[f.key])}</textarea>
-          <small class="hint" id="v-${f.key}-hint">${esc(f.hint)}</small>
+          <textarea name="v-${f.key}" maxlength="${MAX_FIELD_LENGTH}" rows="4" aria-describedby="v-${f.key}-hint">${esc(text[f.key])}</textarea>
+          <small class="hint" id="v-${f.key}-hint">${esc(f.hint)}${f.default ? ' Clear it to go back to the guide’s wording.' : ''}</small>
         </label>`,
       )
       .join('')}</div></div>`,

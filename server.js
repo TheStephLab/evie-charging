@@ -311,7 +311,7 @@ async function readJson(req) {
 
 function serveStatic(req, res, pathname) {
   let rel = pathname === '/' ? 'index.html' : decodeURIComponent(pathname).replace(/^\/+/, '');
-  if (['settings', 'charging', 'visitor'].includes(rel)) rel = `${rel}.html`;
+  if (['settings', 'charging', 'visitor', 'facilities', 'restaurant'].includes(rel)) rel = `${rel}.html`;
   const file = SHARED[rel] ? path.join(ROOT, 'src', SHARED[rel]) : path.resolve(PUBLIC, rel);
   if (!SHARED[rel] && !file.startsWith(PUBLIC + path.sep)) return send(res, 403, 'Forbidden', 'text/plain');
   fs.readFile(file, (err, data) => {

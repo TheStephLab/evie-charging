@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>101 Science Park Hub</title>
-  <meta name="description" content="101 Science Park Hub: visitor information, safety and EV charging.">
+  <meta name="description" content="101 Science Park Hub: safety, getting here, facilities, BYTE+BREW, EV charging and useful links for 101 Cambridge Science Park.">
   <meta name="theme-color" content="#FFFFFF">
   <script src="theme.js"></script>
   <link rel="manifest" href="manifest.webmanifest">
@@ -22,12 +22,14 @@
     <div class="site-header-inner">
       <a class="brand" href="./" aria-label="101 Science Park Hub, home">
         <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="bg" width="64" height="64" rx="6"/><rect class="fg" x="12" y="18" width="7" height="28"/><circle class="ring" cx="32" cy="32" r="10.5" fill="none" stroke-width="7"/><rect class="fg" x="45" y="18" width="7" height="28"/></svg>
-        <span class="brand-text"><strong>101 Science Park</strong><span>Visitor hub</span></span>
+        <span class="brand-text"><strong>101 Science Park</strong><span>Hub</span></span>
       </a>
       <nav class="site-nav" aria-label="Main">
         <a href="./" data-zone="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg><span>Home</span></a>
-        <a href="charging.html" data-zone="ev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span>EV charging</span></a>
-        <a href="visitor.html" data-zone="visitor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg><span>Visitor centre</span></a>
+        <a href="visitor.html" data-zone="visitor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg><span class="nav-long">Visitor centre</span><span class="nav-short">Visitors</span></a>
+        <a href="facilities.html" data-zone="facilities"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M3 21V3h12v6h6v12zM6 6v2h2V6zm4 0v2h2V6zM6 10v2h2v-2zm4 0v2h2v-2zm7 2v2h2v-2zM6 14v2h2v-2zm4 0v2h2v-2zm7 1v2h2v-2zM8 18v3h3v-3z"/></svg><span>Facilities</span></a>
+        <a href="restaurant.html" data-zone="food"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zm12 1h1.5a3 3 0 0 1 0 6H16v-2h1.5a1 1 0 0 0 0-2H16zM3 19h15v2H3zM8 2h2v4H8zm4 0h2v4h-2z"/></svg><span class="nav-long">BYTE+BREW</span><span class="nav-short">Food</span></a>
+        <a href="charging.html" data-zone="ev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span class="nav-long">EV charging</span><span class="nav-short">Charging</span></a>
       </nav>
       <div class="header-actions">
         <a class="icon-button optional-action" href="settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg></a>
@@ -41,27 +43,90 @@
       <span class="hero-numeral" aria-hidden="true">101</span>
       <p class="overline">Welcome to</p>
       <h1 id="hero-h"><span>101</span> <span>Science Park</span></h1>
-      <p class="lede">Everything you need for your visit, from EV charging to safety information, Wi-Fi and parking.</p>
+      <p class="lede">Your guide to 101 Cambridge Science Park: safety, getting here, facilities, food and EV charging, all in one place.</p>
     </section>
 
     <section class="directory" aria-labelledby="dir-h">
       <div class="directory-head"><h2 id="dir-h">Directory</h2><span id="updated" class="stamp"></span></div>
+      <a class="dir-row" data-zone="visitor" href="visitor.html">
+        <span class="dir-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg></span>
+        <span><span class="dir-title">Visitor centre</span><span class="dir-text">Fire alarm, first aid, opening hours, parking, cycling, transport and hosting guests.</span></span>
+        <span class="dir-status" id="visitor-status"></span>
+        <svg class="dir-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg>
+      </a>
+      <a class="dir-row" data-zone="facilities" href="facilities.html">
+        <span class="dir-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M3 21V3h12v6h6v12zM6 6v2h2V6zm4 0v2h2V6zM6 10v2h2v-2zm4 0v2h2v-2zm7 2v2h2v-2zM6 14v2h2v-2zm4 0v2h2v-2zm7 1v2h2v-2zM8 18v3h3v-3z"/></svg></span>
+        <span><span class="dir-title">Facilities</span><span class="dir-text">Showers, lockers, print areas, games area, quiet rooms, meeting rooms and a floor guide.</span></span>
+        <span class="dir-status">8 showers · 100+ lockers</span>
+        <svg class="dir-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg>
+      </a>
+      <a class="dir-row" data-zone="food" href="restaurant.html">
+        <span class="dir-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zm12 1h1.5a3 3 0 0 1 0 6H16v-2h1.5a1 1 0 0 0 0-2H16zM3 19h15v2H3zM8 2h2v4H8zm4 0h2v4h-2z"/></svg></span>
+        <span><span class="dir-title">BYTE+BREW</span><span class="dir-text">The on-site restaurant: barista coffee, breakfast and lunch, with weekly offers in the Kanpla app.</span></span>
+        <span class="dir-status">Kanpla ID FJQU</span>
+        <svg class="dir-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg>
+      </a>
       <a class="dir-row" data-zone="ev" href="charging.html">
         <span class="dir-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
         <span><span class="dir-title">EV charging</span><span class="dir-text">Check in to a charger or join the queue.</span></span>
         <span class="dir-status" id="ev-status">Checking chargers…</span>
         <svg class="dir-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg>
       </a>
-      <a class="dir-row" data-zone="visitor" href="visitor.html">
-        <span class="dir-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg></span>
-        <span><span class="dir-title">Visitor centre</span><span class="dir-text">Fire exits, first aid, Wi-Fi, reception, parking and accessibility.</span></span>
-        <span class="dir-status" id="visitor-status"></span>
-        <svg class="dir-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg>
+    </section>
+
+    <section class="section" aria-labelledby="links-h">
+      <div class="section-head"><h2 id="links-h">Useful links</h2><span class="links-note">Links marked <span class="signin">AVEVA sign-in</span> need your work account.</span></div>
+
+      <a class="feature-link" href="https://places.cloud.microsoft/places/">
+        <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7 2h2v2h6V2h2v2h3v17H4V4h3zM6 9v10h12V9zm2 2h3v3H8z"/></svg></span>
+        <span class="overline">Microsoft Places</span>
+        <span class="feature-title">Book a desk or room</span>
+        <span class="feature-text">Desks are in team neighbourhoods and are flexible. Book a desk, meeting room, private office or booth before you come in.</span>
+        <span class="feature-go"><span class="signin">AVEVA sign-in</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></span>
       </a>
+
+      <div class="link-groups">
+        <section class="link-group" aria-labelledby="lg-work">
+          <h3 id="lg-work">Workplace help</h3>
+          <ul>
+            <li><a href="https://aveva.sharepoint.com/:b:/r/teams/Comms/EmployeeCommunications/Cambridge%20Office/Supporting%20documents/Microsoft%20Places%20Application%20Support%20Guide%20-%20Welcome%20Pack.pdf?d=w2afa9603b079491282770ac4aa38233a&amp;csf=1&amp;web=1&amp;e=W6eR3e"><span class="link-title">Microsoft Places guide</span><span class="link-desc">How to book desks and rooms</span><span class="signin">AVEVA sign-in</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://aveva.sharepoint.com/:b:/r/teams/Comms/EmployeeCommunications/Cambridge%20Office/CSP%20Neighbourhood%20representatives.pdf?d=w01db052a382244d180834de3934ea502&amp;csf=1&amp;web=1&amp;e=JOc7UK"><span class="link-title">Neighbourhood representatives</span><span class="link-desc">Who looks after each team area</span><span class="signin">AVEVA sign-in</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://aveva.service-now.com/esc?id=sc_cat_item&amp;sys_id=290319b51b3bb11035700e1ad34bcb74&amp;table=sc_cat_item&amp;searchTerm=workplace%20experience"><span class="link-title">Workplace Experience ticket</span><span class="link-desc">Fobs, lockers, workstation set-up and more</span><span class="signin">AVEVA sign-in</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="mailto:WPE.Cambridge@aveva.com"><span class="link-title">Email Workplace Experience</span><span class="link-desc">WPE.Cambridge@aveva.com</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+          </ul>
+        </section>
+        <section class="link-group" aria-labelledby="lg-guests">
+          <h3 id="lg-guests">Hosting guests</h3>
+          <ul>
+            <li><a href="https://my.verkada.com/"><span class="link-title">My Verkada</span><span class="link-desc">Pre-register an external guest</span><span class="signin">AVEVA sign-in</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="visitor.html#guests-h"><span class="link-title">How guest sign-in works</span><span class="link-desc">For external guests and colleagues from other offices</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg></a></li>
+            <li><a href="restaurant.html#meetings-h"><span class="link-title">Catering for meetings</span><span class="link-desc">For 8 or more people, with a week's notice</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7 16.1 11H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z"/></svg></a></li>
+          </ul>
+        </section>
+        <section class="link-group" aria-labelledby="lg-travel">
+          <h3 id="lg-travel">Getting here</h3>
+          <ul>
+            <li><a href="https://www.nationalrail.co.uk/stations/cambridge-north/"><span class="link-title">Cambridge North station</span><span class="link-desc">National Rail · 10-minute walk</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://cambridgesciencepark.co.uk/amenities/shuttle-bus/"><span class="link-title">Science Park shuttle bus</span><span class="link-desc">Between the station and the Park</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://cambridgeparkandride.info/milton.shtml"><span class="link-title">Milton Park &amp; Ride</span><span class="link-desc">About 5 minutes by bus</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://www.voi.com/city/cambridge"><span class="link-title">Voi e-bikes and e-scooters</span><span class="link-desc">Across north Cambridge</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3AbfFyMcdBYiGXhheWkCTKqo7bi9TJupPhx8xTMJtVPmM1%40thread.tacv2/General?groupId=cd74d2d9-2baf-4ad3-9077-5995cdf30dd2&amp;tenantId=425a5546-5a6e-4f1b-ab62-23d91d07d893"><span class="link-title">EV Community on Teams</span><span class="link-desc">Share the 3 charging spaces fairly</span><span class="signin">AVEVA sign-in</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+          </ul>
+        </section>
+        <section class="link-group" aria-labelledby="lg-park">
+          <h3 id="lg-park">On the Park</h3>
+          <ul>
+            <li><a href="https://cambridgesciencepark.co.uk/life-on-the-park/"><span class="link-title">Life on the Park</span><span class="link-desc">What's happening on Cambridge Science Park</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://cambridgesciencepark.co.uk/our-amenities/"><span class="link-title">Park amenities</span><span class="link-desc">Amenities across Cambridge Science Park</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://cambridgesciencepark.co.uk/our-amenities-map/"><span class="link-title">Amenities map</span><span class="link-desc">Find your way around the Park</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+            <li><a href="https://parkhub.uk/"><span class="link-title">Park Cycle Hub</span><span class="link-desc">Bike repairs, next to the Bradfield Centre</span><svg class="link-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z"/></svg></a></li>
+          </ul>
+        </section>
+      </div>
     </section>
 
     <section class="section" aria-labelledby="quick-h">
-      <div class="section-head"><h2 id="quick-h">Good to know</h2><a href="visitor.html">All visitor information</a></div>
+      <div class="section-head"><h2 id="quick-h">Good to know</h2><a href="visitor.html">Visitor centre</a></div>
       <dl class="info-list" id="quick-info"></dl>
     </section>
   </main>

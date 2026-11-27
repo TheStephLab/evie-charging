@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facilities · 101 Science Park Hub</title>
+  <meta name="description" content="Showers, lockers, printing, quiet rooms, meeting rooms and a floor guide for 101 Cambridge Science Park.">
+  <meta name="theme-color" content="#FFFFFF">
+  <script src="theme.js"></script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preload" href="fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="page.js"></script>
+</head>
+<body data-zone="facilities">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="./" aria-label="101 Science Park Hub, home">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="bg" width="64" height="64" rx="6"/><rect class="fg" x="12" y="18" width="7" height="28"/><circle class="ring" cx="32" cy="32" r="10.5" fill="none" stroke-width="7"/><rect class="fg" x="45" y="18" width="7" height="28"/></svg>
+        <span class="brand-text"><strong>101 Science Park</strong><span>Hub</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="./" data-zone="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg><span>Home</span></a>
+        <a href="visitor.html" data-zone="visitor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg><span class="nav-long">Visitor centre</span><span class="nav-short">Visitors</span></a>
+        <a href="facilities.html" data-zone="facilities" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M3 21V3h12v6h6v12zM6 6v2h2V6zm4 0v2h2V6zM6 10v2h2v-2zm4 0v2h2v-2zm7 2v2h2v-2zM6 14v2h2v-2zm4 0v2h2v-2zm7 1v2h2v-2zM8 18v3h3v-3z"/></svg><span>Facilities</span></a>
+        <a href="restaurant.html" data-zone="food"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zm12 1h1.5a3 3 0 0 1 0 6H16v-2h1.5a1 1 0 0 0 0-2H16zM3 19h15v2H3zM8 2h2v4H8zm4 0h2v4h-2z"/></svg><span class="nav-long">BYTE+BREW</span><span class="nav-short">Food</span></a>
+        <a href="charging.html" data-zone="ev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span class="nav-long">EV charging</span><span class="nav-short">Charging</span></a>
+      </nav>
+      <div class="header-actions">
+        <a class="icon-button optional-action" href="settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg></a>
+        <button class="icon-button" type="button" popovertarget="appearance-menu" aria-label="Appearance" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m0 2v16a8 8 0 0 1 0-16"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <header class="page-head">
+      <span class="page-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M3 21V3h12v6h6v12zM6 6v2h2V6zm4 0v2h2V6zM6 10v2h2v-2zm4 0v2h2v-2zm7 2v2h2v-2zM6 14v2h2v-2zm4 0v2h2v-2zm7 1v2h2v-2zM8 18v3h3v-3z"/></svg></span>
+      <div>
+        <p class="overline">101 Science Park <span class="stamp">From the Phase One guide, 23 Nov 2026</span></p>
+        <h1>Facilities</h1>
+        <p class="lede">Showers, lockers, printing, quiet rooms and places to work, floor by floor.</p>
+      </div>
+    </header>
+
+    <nav class="jump" aria-label="On this page">
+      <a href="#amenities-h">Amenities</a>
+      <a href="#work-h">Places to work</a>
+      <a href="#floors-h">Floor guide</a>
+      <a href="#building-h">The building</a>
+    </nav>
+
+    <section class="section" aria-labelledby="amenities-h">
+      <div class="section-head"><h2 id="amenities-h">Amenities</h2></div>
+      <div class="tiles">
+        <article class="tile" id="showers" aria-labelledby="showers-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V8a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4"/><path d="M10 8h8"/><path d="M11 12v1M14 12v1M17 12v1M12.5 16v1M15.5 16v1M14 20v1"/></svg></span>
+          <p class="overline">Ground floor and cycle shed</p>
+          <h3 id="showers-h">Showers and drying areas</h3>
+          <p>8 showers, 3 of them accessible: inside the building by the ground-floor toilets, and in the external shower block in the larger cycle shed. Fresh towels in every shower.</p>
+          <p>Drying areas for wet coats and towels are in the shower block and beside the ground-floor showers. The shower block needs a fob from Workplace Experience.</p>
+        </article>
+        <article class="tile" id="lockers" aria-labelledby="lockers-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M12 3v18M8 7h2M14 7h2M8 10h2M14 10h2"/></svg></span>
+          <p class="overline">Level 1 and ground floor</p>
+          <h3 id="lockers-h">Lockers</h3>
+          <p>More than 100 lockers for daily use, on Level 1 and by the ground-floor hydration point and copy area. Need a permanent locker? Contact <a href="mailto:WPE.Cambridge@aveva.com">Workplace Experience</a>.</p>
+          <p>Cyclists: 45 more lockers in the larger cycle shed, for semi-permanent storage.</p>
+        </article>
+        <article class="tile" id="print" aria-labelledby="print-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 8V3h10v5"/><path d="M7 16H3V8h18v8h-4"/><path d="M7 13h10v8H7z"/></svg></span>
+          <p class="overline">Ground floor and Level 1</p>
+          <h3 id="print-h">Print areas</h3>
+          <p>A print area on each floor. For help, visit the IT Hub (room 001, ground floor).</p>
+        </article>
+        <article class="tile" id="drinks" aria-labelledby="drinks-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 4h12l-1.6 16.2a1 1 0 0 1-1 .8H8.6a1 1 0 0 1-1-.8z"/><path d="M6.6 10h10.8"/></svg></span>
+          <p class="overline">Every floor</p>
+          <h3 id="drinks-h">Drink stations and kitchens</h3>
+          <p>Self-service tea, coffee, fresh juice, squash and fresh fruit. Every station has fridges, crockery and cutlery, and there are microwaves in the ground-floor kitchens.</p>
+        </article>
+        <article class="tile" id="games" aria-labelledby="games-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="8.5" cy="8.5" r=".9"/><circle cx="15.5" cy="8.5" r=".9"/><circle cx="12" cy="12" r=".9"/><circle cx="8.5" cy="15.5" r=".9"/><circle cx="15.5" cy="15.5" r=".9"/></svg></span>
+          <p class="overline">Ground floor, by the restaurant</p>
+          <h3 id="games-h">Games area</h3>
+          <p>A pool table and board games.</p>
+        </article>
+        <article class="tile" id="restaurant" aria-labelledby="restaurant-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 9h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h14M9 3v3M12 3v3"/></svg></span>
+          <p class="overline">Ground floor · 148 seats</p>
+          <h3 id="restaurant-h">BYTE+BREW restaurant</h3>
+          <p>Barista coffee, breakfast and lunch. <a href="restaurant.html">See what's on and how to save</a>.</p>
+        </article>
+        <article class="tile" id="parents-room" aria-labelledby="parents-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v8h8a8 8 0 0 0-8-8z"/><path d="M3 11h17a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5z"/><path d="M3 11 1.5 8"/><circle cx="8" cy="19.5" r="1.5"/><circle cx="15" cy="19.5" r="1.5"/></svg></span>
+          <p class="overline">Level 1</p>
+          <h3 id="parents-h">Parents' Room</h3>
+          <p>Available on Level 1.</p>
+        </article>
+        <article class="tile" id="sensory-room" aria-labelledby="sensory-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8"/></svg></span>
+          <p class="overline">Level 1 · Room 152</p>
+          <h3 id="sensory-h">Sensory Room</h3>
+          <p>Room 152 on Level 1.</p>
+        </article>
+        <article class="tile" id="prayer-room" aria-labelledby="prayer-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3c2 2.5 3.5 4.5 3.5 7a3.5 3.5 0 0 1-7 0c0-2.5 1.5-4.5 3.5-7z"/><path d="M9 21v-5h6v5M6 21h12"/></svg></span>
+          <p class="overline">Coming soon</p>
+          <h3 id="prayer-h">Prayer Room</h3>
+          <p>A prayer room is on its way.</p>
+        </article>
+        <article class="tile" id="first-aid" aria-labelledby="firstaid-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg></span>
+          <p class="overline">Level 1</p>
+          <h3 id="firstaid-h">First Aid Room</h3>
+          <p>In the central core by the lifts. First aiders are listed on notice boards around the site. <a href="visitor.html#safety-h">Safety information</a></p>
+        </article>
+        <article class="tile" id="it-hub" aria-labelledby="ithub-h">
+          <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg></span>
+          <p class="overline">Ground floor · Room 001</p>
+          <h3 id="ithub-h">IT Hub</h3>
+          <p>Help with IT and printing.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="work-h">
+      <div class="section-head"><h2 id="work-h">Places to work</h2><a href="https://places.cloud.microsoft/places/">Book in Microsoft Places</a></div>
+      <div class="metrics counts" role="group" aria-label="Bookable spaces">
+        <div class="metric"><span class="metric-top">Meeting rooms</span><strong>22</strong><small>For 4, 6, 10 or 12+ people. 9 have step-free access.</small></div>
+        <div class="metric"><span class="metric-top">Private offices</span><strong>15</strong><small>No screens. For confidential conversations.</small></div>
+        <div class="metric"><span class="metric-top">Phone booths</span><strong>16</strong><small>7 have step-free access.</small></div>
+        <div class="metric"><span class="metric-top">Focus spaces</span><strong>15</strong><small>For quiet, focused work.</small></div>
+      </div>
+      <dl class="info-list">
+        <div><dt>Desks</dt><dd>218 desks in team neighbourhoods: 46 on the ground floor and 172 on Level 1. Desks are flexible, so feel free to move around. <a href="https://aveva.sharepoint.com/:b:/r/teams/Comms/EmployeeCommunications/Cambridge%20Office/CSP%20Neighbourhood%20representatives.pdf?d=w01db052a382244d180834de3934ea502&amp;csf=1&amp;web=1&amp;e=JOc7UK">Neighbourhood representatives</a></dd></div>
+        <div><dt>Booking</dt><dd>Book desks, meeting rooms, offices and booths in <a href="https://places.cloud.microsoft/places/">Microsoft Places</a>. Read the <a href="https://aveva.sharepoint.com/:b:/r/teams/Comms/EmployeeCommunications/Cambridge%20Office/Supporting%20documents/Microsoft%20Places%20Application%20Support%20Guide%20-%20Welcome%20Pack.pdf?d=w2afa9603b079491282770ac4aa38233a&amp;csf=1&amp;web=1&amp;e=W6eR3e">support guide</a>, or contact the IT Service Desk if something isn't working.</dd></div>
+        <div><dt>Larger events</dt><dd>Planning something bigger? Contact <a href="mailto:WPE.Cambridge@aveva.com">Workplace Experience</a>.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" aria-labelledby="floors-h">
+      <div class="section-head"><h2 id="floors-h">Floor guide</h2></div>
+      <article class="floor" aria-labelledby="l0-h">
+        <span class="floor-marker" aria-hidden="true">0</span>
+        <div>
+          <h3 id="l0-h">Ground floor <span>Level 0</span></h3>
+          <div class="floor-cols">
+            <div>
+              <h4>On this floor</h4>
+              <ul>
+                <li>Reception and the defibrillator (AED)</li>
+                <li>BYTE+BREW restaurant and games area</li>
+                <li>IT Hub and print area</li>
+                <li>Showers and drying area</li>
+                <li>Kitchens with microwaves</li>
+                <li>Lockers by the hydration point and copy area</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Neighbourhoods · 46 desks</h4>
+              <ul>
+                <li>People Team <span class="count">24</span></li>
+                <li>Shared neighbourhood <span class="count">22</span><small>IT Support, Legal, Legal (Licensing), Services, Marketing, Transformation, Business Areas, Digital Security and others</small></li>
+              </ul>
+            </div>
+            <div>
+              <h4>Rooms</h4>
+              <ul>
+                <li><b>001</b> IT Hub</li>
+                <li><b>002</b> Multi-purpose room</li>
+                <li><b>004</b> Corn Exchange</li>
+                <li><b>006</b> Guildhall</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="floor" aria-labelledby="l1-h">
+        <span class="floor-marker" aria-hidden="true">1</span>
+        <div>
+          <h3 id="l1-h">First floor <span>Level 1</span></h3>
+          <div class="floor-cols">
+            <div>
+              <h4>On this floor</h4>
+              <ul>
+                <li>First Aid Room</li>
+                <li>Parents' Room</li>
+                <li>Sensory Room (152)</li>
+                <li>Print area</li>
+                <li>Lockers</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Neighbourhoods · 172 desks</h4>
+              <ul>
+                <li>R&amp;D and Portfolio <span class="count">90</span></li>
+                <li>Finance <span class="count">58</span></li>
+                <li>Commercial <span class="count">12</span></li>
+                <li>COI <span class="count">12</span></li>
+              </ul>
+            </div>
+            <div>
+              <h4>Rooms</h4>
+              <ul>
+                <li><b>105</b> Eagle</li>
+                <li><b>106</b> Darwin</li>
+                <li><b>107</b> Turing</li>
+                <li><b>108</b> Hawking</li>
+                <li><b>117</b> Rutherford</li>
+                <li><b>124</b> River Cam</li>
+                <li><b>126</b> The Backs</li>
+                <li><b>127</b> Senate</li>
+                <li><b>153</b> Pembroke</li>
+                <li><b>155</b> Magdalene</li>
+                <li><b>156</b> Queens</li>
+                <li><b>163</b> Corpus</li>
+                <li><b>104/165</b> Open Collab</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" aria-labelledby="building-h">
+      <div class="section-head"><h2 id="building-h">The building</h2></div>
+      <dl class="info-list">
+        <div><dt>Sustainability</dt><dd>101 Cambridge Science Park has a <a href="https://breeam.com/">BREEAM</a> ‘Excellent’ rating (74.9%).</dd></div>
+        <div><dt>Phase Two</dt><dd>Phase Two is still to come. Its area of the building isn't open yet, and construction work continues on site.</dd></div>
+        <div><dt>Accessibility</dt><dd>Step-free entrance and two lifts to every floor. <a href="visitor.html#accessibility-h">More about accessibility</a></dd></div>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>101 Science Park Hub · No accounts. Nothing personal is kept past today.</span>
+    <span><a href="settings.html">Settings</a> · <a href="fonts/Roboto-OFL.txt">Font licence</a></span>
+  </footer>
+
+  <div id="appearance-menu" class="app-menu" popover role="dialog" aria-label="Appearance">
+    <div class="menu-heading"><strong>Appearance</strong><span>Currently: <span id="theme-current">System</span></span></div>
+    <fieldset class="theme-options">
+      <legend class="visually-hidden">Theme</legend>
+      <label><input type="radio" name="theme" value="system"><span class="theme-check" aria-hidden="true"></span>System</label>
+      <label><input type="radio" name="theme" value="light"><span class="theme-check" aria-hidden="true"></span>Light</label>
+      <label><input type="radio" name="theme" value="dark"><span class="theme-check" aria-hidden="true"></span>Dark</label>
+    </fieldset>
+    <div class="menu-footer"><span>Saved on this device</span></div>
+  </div>
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Visitor centre · 101 Science Park Hub</title>
-  <meta name="description" content="101 Science Park Hub: visitor information, safety and EV charging.">
+  <meta name="description" content="Fire alarm, first aid, opening hours, parking, cycling, transport and hosting guests at 101 Cambridge Science Park.">
   <meta name="theme-color" content="#FFFFFF">
   <script src="theme.js"></script>
   <link rel="manifest" href="manifest.webmanifest">
@@ -22,12 +22,14 @@
     <div class="site-header-inner">
       <a class="brand" href="./" aria-label="101 Science Park Hub, home">
         <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="bg" width="64" height="64" rx="6"/><rect class="fg" x="12" y="18" width="7" height="28"/><circle class="ring" cx="32" cy="32" r="10.5" fill="none" stroke-width="7"/><rect class="fg" x="45" y="18" width="7" height="28"/></svg>
-        <span class="brand-text"><strong>101 Science Park</strong><span>Visitor hub</span></span>
+        <span class="brand-text"><strong>101 Science Park</strong><span>Hub</span></span>
       </a>
       <nav class="site-nav" aria-label="Main">
         <a href="./" data-zone="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg><span>Home</span></a>
-        <a href="charging.html" data-zone="ev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span>EV charging</span></a>
-        <a href="visitor.html" data-zone="visitor" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg><span>Visitor centre</span></a>
+        <a href="visitor.html" data-zone="visitor" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg><span class="nav-long">Visitor centre</span><span class="nav-short">Visitors</span></a>
+        <a href="facilities.html" data-zone="facilities"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M3 21V3h12v6h6v12zM6 6v2h2V6zm4 0v2h2V6zM6 10v2h2v-2zm4 0v2h2v-2zm7 2v2h2v-2zM6 14v2h2v-2zm4 0v2h2v-2zm7 1v2h2v-2zM8 18v3h3v-3z"/></svg><span>Facilities</span></a>
+        <a href="restaurant.html" data-zone="food"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zm12 1h1.5a3 3 0 0 1 0 6H16v-2h1.5a1 1 0 0 0 0-2H16zM3 19h15v2H3zM8 2h2v4H8zm4 0h2v4h-2z"/></svg><span class="nav-long">BYTE+BREW</span><span class="nav-short">Food</span></a>
+        <a href="charging.html" data-zone="ev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span class="nav-long">EV charging</span><span class="nav-short">Charging</span></a>
       </nav>
       <div class="header-actions">
         <a class="icon-button optional-action" href="settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10v2H3zm14 0h4v2h-4zm-2-2h2v6h-2zM3 15h4v2H3zm8 0h10v2H11zm-2-2h2v6H9z"/></svg></a>
@@ -37,29 +39,74 @@
   </header>
 
   <main id="main" class="page">
-      <header class="page-head">
+    <header class="page-head">
       <span class="page-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg></span>
       <div>
         <p class="overline">101 Science Park <span id="updated" class="stamp"></span></p>
         <h1>Visitor centre</h1>
-        <p class="lede">Safety information and everything else you need while you're on site.</p>
+        <p class="lede">Safety, opening hours, getting here and hosting guests at 101 Cambridge Science Park.</p>
       </div>
       <div class="actions"><button type="button" class="btn" id="print-btn">Print</button></div>
     </header>
-      <p id="demo-note" class="notice info" hidden>Demo mode: this information is stored in this browser. Edit it in <a href="settings.html">Settings</a> (demo token: <code>demo</code>).</p>
 
-      <section class="section" aria-labelledby="alarm-h">
+    <nav class="jump" aria-label="On this page">
+      <a href="#alarm-h">Fire alarm</a>
+      <a href="#safety-h">Safety</a>
+      <a href="#access-h">Opening hours</a>
+      <a href="#arriving-h">Getting here</a>
+      <a href="#guests-h">Hosting guests</a>
+      <a href="#accessibility-h">Accessibility</a>
+      <a href="#contacts-h">Contacts</a>
+    </nav>
+
+    <p id="demo-note" class="notice info" hidden>Demo mode: edits are stored in this browser. Change the wording in <a href="settings.html">Settings</a> (demo token: <code>demo</code>).</p>
+
+    <section class="section" aria-labelledby="alarm-h">
       <div class="section-head"><h2 id="alarm-h">If the fire alarm sounds</h2></div>
       <ol class="steps">
-        <li>Leave the building straight away by the nearest fire exit.</li>
-        <li>Don't use the lifts, and don't stop to collect belongings.</li>
-        <li>Go to the fire assembly point and tell your host or a fire marshal that you're out.</li>
-        <li>Don't go back in until you're told it's safe.</li>
+        <li>Leave the building straight away by the nearest marked exit.</li>
+        <li>Don't stop to collect your belongings.</li>
+        <li>Follow the signs to the fire assembly point in the car park.</li>
       </ol>
     </section>
 
-      <div id="visitor-sections"></div>
-    </main>
+    <div data-section="safety"></div>
+    <div data-section="access"></div>
+    <div data-section="arriving"></div>
+
+    <section class="section" aria-labelledby="guests-h">
+      <div class="section-head"><h2 id="guests-h">Hosting guests</h2><a href="mailto:WPE.Cambridge@aveva.com">Questions? Email Workplace Experience</a></div>
+      <div class="two-col">
+        <section class="panel" aria-labelledby="external-h">
+          <div class="panel-head"><h3 id="external-h">External guests</h3><span class="badge">Verkada</span></div>
+          <div class="panel-body">
+            <ol class="flow">
+              <li><span>Pre-register your guest in <a href="https://my.verkada.com/">My Verkada</a>. They get an email with a link to register.</span></li>
+              <li><span>Your guest registers and receives a confirmation with our address and your details.</span></li>
+              <li><span>When they arrive, they sign in at the reception kiosk and you get an email.</span></li>
+              <li><span>Meet your guest at reception and stay with them throughout their visit.</span></li>
+              <li><span>At the end, walk them back to reception and make sure they return their visitor pass.</span></li>
+            </ol>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="internal-h">
+          <div class="panel-head"><h3 id="internal-h">Colleagues from other offices</h3></div>
+          <div class="panel-body">
+            <ol class="flow">
+              <li><span>Let <a href="mailto:WPE.Cambridge@aveva.com">Workplace Experience</a> know they're coming.</span></li>
+              <li><span>Check desk availability with your Cambridge colleagues or Workplace Experience.</span></li>
+              <li><span>On the day, they check in at reception for a visitor pass.</span></li>
+            </ol>
+            <p class="after-note">They won't get an access card, but the visitor pass lets them move freely around the site once they're through the barriers.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <div data-section="accessibility"></div>
+    <div data-section="contacts"></div>
+    <div id="visitor-sections"></div>
+  </main>
 
   <footer class="site-footer">
     <span>101 Science Park Hub · No accounts. Nothing personal is kept past today.</span>

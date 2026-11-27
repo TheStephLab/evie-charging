@@ -1,6 +1,28 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanVisitor, loadVisitor, emptyVisitor, MAX_FIELD_LENGTH } from '../src/visitor.js';
+import { cleanVisitor, loadVisitor, emptyVisitor, visitorText, richText, VISITOR_FIELDS, MAX_FIELD_LENGTH } from '../src/visitor.js';
+
+const guide = (key) => VISITOR_FIELDS.find((f) => f.key === key).default;
+
+test("blank fields show the guide's wording, and saving the guide's wording stores it as blank", () => {
+  const shown = visitorText(emptyVisitor());
+  assert.equal(shown.assemblyPoint, guide('assemblyPoint'));
+  assert.equal(shown.wifi, '');
+  const saved = cleanVisitor({ fields: { assemblyPoint: `${guide('assemblyPoint')}\r\n`, firstAid: 'Room 1.04' } });
+  assert.equal(saved.fields.assemblyPoint, '');
+  assert.equal(visitorText(saved).firstAid, 'Room 1.04');
+});
+
+test('richText escapes HTML and only links safe [label](url) targets', () => {
+  assert.equal(richText('<b>Hi</b>\nthere'), '&lt;b&gt;Hi&lt;/b&gt;<br>there');
+  assert.equal(
+    richText('[Map](https://x.test/?a=1&b=2) and [Lockers](facilities.html#lockers)'),
+    '<a href="https://x.test/?a=1&amp;b=2">Map</a> and <a href="facilities.html#lockers">Lockers</a>',
+  );
+  assert.equal(richText('[Bad](javascript:alert(1))'), '[Bad](javascript:alert(1))');
+  assert.equal(richText('[x](https://a.test/id=12345678901)'), '<a href="https://a.test/id=12345678901">x</a>');
+  assert.equal(richText('Call 01223 123456'), 'Call <a href="tel:01223123456">01223 123456</a>');
+});
 
 test('visitor info keeps known fields as trimmed plain text and drops unknown ones', () => {
   const v = cleanVisitor({ fields: { assemblyPoint: '  Car park B\r\nby the gate ', evil: '<script>', firstAid: 12 } }, 5);

@@ -23,14 +23,6 @@ export function saveDemoVisitor(input) {
   return v;
 }
 
-const esc = (v) =>
-  String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
-
-// Plain text → safe HTML with line breaks and clickable UK-style phone numbers.
-export function richText(text) {
-  return esc(text)
-    .replace(/(\+?\d[\d ]{7,}\d)/g, (m) => `<a href="tel:${m.replace(/\s/g, '')}">${m}</a>`)
-    .replace(/\n/g, '<br>');
-}
+export { richText, visitorText } from './visitor.js';
 
 export const MISSING = 'Not added yet. Please ask at reception.';
