@@ -194,7 +194,7 @@ async function renderVisitorEditor() {
       .map(
         (f) => `<label>${esc(f.label)}
           <textarea name="v-${f.key}" maxlength="${MAX_FIELD_LENGTH}" rows="4" aria-describedby="v-${f.key}-hint">${esc(text[f.key])}</textarea>
-          <small class="hint" id="v-${f.key}-hint">${esc(f.hint)}${f.default ? ' Clear it to go back to the guide’s wording.' : ''}</small>
+          <small class="hint" id="v-${f.key}-hint">${esc(f.hint)}${f.default ? ' Clear it to go back to the default wording.' : ''}</small>
         </label>`,
       )
       .join('')}</div></div>`,

@@ -178,6 +178,24 @@ code { padding: 1px 5px; border: 1px solid var(--line); border-radius: var(--rad
 .info-list dd { margin-top: 8px; font-size: 16px; overflow-wrap: anywhere; }
 .info-list dd .muted { font-style: italic; }
 .info-list a[href^="tel:"] { font-weight: 500; white-space: nowrap; }
+.info-list dd strong.lead { font-size: 18px; font-weight: 500; line-height: 1.35; }
+
+/* external links: a small ↗ after inline links that open in a new tab */
+a[target="_blank"]:not([class])::after {
+  content: ""; display: inline-block; width: .7em; height: .7em; margin-left: .2em; vertical-align: .05em;
+  background: currentColor; opacity: .7;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.4 19 5 17.6 14.6 8H8V6h10v10h-2V9.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.link-group a[target="_blank"]::after { content: none; }
+
+/* site-wide notice with a construction hazard band (visitor centre) */
+.site-notice { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; gap: 4px 20px; margin: 0 0 40px; padding: 30px 24px 22px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+.site-notice::before { content: ""; position: absolute; inset: 0 0 auto; height: 8px; background: repeating-linear-gradient(-45deg, var(--hazard) 0 12px, var(--hazard-ink) 12px 24px); }
+.site-notice-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius); background: var(--hazard); color: #111820; }
+.site-notice-icon svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.site-notice h2 { font: 500 18px/1.35 Roboto, sans-serif; }
+.site-notice p { max-width: 80ch; margin-top: 4px; color: var(--ink-2); }
 
 /* visitor centre: fire alarm steps as large signage numerals */
 .steps { counter-reset: step; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0; padding: 0; list-style: none; }
@@ -513,6 +531,9 @@ fieldset:disabled label { opacity: .5; }
   .site-footer { width: auto; margin: 0 16px; padding: 20px 0 32px; }
   .conn { margin-right: 0; }
   .jump { margin: -8px 0 28px; }
+  .site-notice { grid-template-columns: 40px minmax(0, 1fr); gap: 4px 14px; padding: 26px 16px 18px; margin-bottom: 28px; }
+  .site-notice-icon { width: 40px; height: 40px; }
+  .site-notice-icon svg { width: 24px; height: 24px; }
   .feature-link { grid-template-columns: 48px minmax(0, 1fr); padding: 20px 18px; }
   .feature-icon { grid-row: 1 / span 2; width: 48px; height: 48px; }
   .feature-icon svg { width: 26px; height: 26px; }

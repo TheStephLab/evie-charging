@@ -1,9 +1,12 @@
 // Visitor centre content, shared by the server and the browser (demo mode).
 // Every field starts with the wording from "Your Cambridge Science Park: 101, Phase One" guide
-// (v1, 23 November 2026). A site admin can override any field from Settings; clearing a field
-// brings the guide's wording back. Text is plain text with [label](url) links.
+// (v1, 23 November 2026), plus site updates from Workplace Experience. A site admin can override
+// any field from Settings; clearing a field brings the default back.
+// Text is plain text with [label](url) links and **bold** (bold at the very start is shown as a headline).
 
 export const GUIDE = 'Phase One guide, 23 Nov 2026';
+
+export const ADDRESS = '101 Cambridge Science Park Rd, Milton Rd, Milton, Cambridge CB4 0FY';
 
 export const LINKS = {
   places: 'https://places.cloud.microsoft/places/',
@@ -14,16 +17,20 @@ export const LINKS = {
   wpeTicket:
     'https://aveva.service-now.com/esc?id=sc_cat_item&sys_id=290319b51b3bb11035700e1ad34bcb74&table=sc_cat_item&searchTerm=workplace%20experience',
   wpeEmail: 'mailto:WPE.Cambridge@aveva.com',
-  evCommunity:
-    'https://teams.microsoft.com/l/channel/19%3AbfFyMcdBYiGXhheWkCTKqo7bi9TJupPhx8xTMJtVPmM1%40thread.tacv2/General?groupId=cd74d2d9-2baf-4ad3-9077-5995cdf30dd2&tenantId=425a5546-5a6e-4f1b-ab62-23d91d07d893',
-  verkada: 'https://my.verkada.com/',
+  googleMaps: 'https://maps.app.goo.gl/gSbUFieeRkdu1kjm7',
+  what3words: 'https://what3words.com/flash.menu.torch',
   cambridgeNorth: 'https://www.nationalrail.co.uk/stations/cambridge-north/',
   shuttle: 'https://cambridgesciencepark.co.uk/amenities/shuttle-bus/',
   parkAndRide: 'https://cambridgeparkandride.info/milton.shtml',
   voi: 'https://www.voi.com/city/cambridge',
+  sciencePark: 'https://cambridgesciencepark.co.uk/',
+  lifeOnPark: 'https://cambridgesciencepark.co.uk/life-on-the-park/',
+  parkAmenities: 'https://cambridgesciencepark.co.uk/our-amenities/',
   amenitiesMap: 'https://cambridgesciencepark.co.uk/our-amenities-map/',
   cycleHub: 'https://parkhub.uk/',
 };
+
+const WPE = `[Workplace Experience](${LINKS.wpeEmail})`;
 
 export const VISITOR_SECTIONS = [
   {
@@ -33,20 +40,15 @@ export const VISITOR_SECTIONS = [
       {
         key: 'alarmTest',
         label: 'Fire alarm test',
-        hint: 'When the weekly test happens.',
-        default: "Every Wednesday at 10:30am. You don't need to leave unless the alarm carries on longer than the usual test.",
+        hint: 'When the weekly test happens and how long it lasts.',
+        default: 'Every Wednesday at 10:30am. The test usually lasts around 10 seconds. If the alarm carries on for longer than that, leave the building.',
       },
-      {
-        key: 'assemblyPoint',
-        label: 'Fire assembly point',
-        hint: 'Where to go when the alarm sounds.',
-        default: 'In the car park. Follow the signs from your nearest exit.',
-      },
+      { key: 'assemblyPoint', label: 'Fire assembly point', hint: 'Where to go when the alarm sounds.', default: 'Level 0, multi-storey car park.' },
       {
         key: 'fireExits',
         label: 'Fire exits',
         hint: 'How many exits there are on each floor.',
-        default: 'Ground floor (Level 0): 3 fire exits.\nLevel 1: 6 fire exits.\nAlways use the nearest marked exit.',
+        default: 'Level 0: 3 fire exits.\nLevel 1: 6 fire exits.\nAlways use the nearest marked exit.',
       },
       { key: 'emergency', label: 'Emergencies', hint: 'Who to call.', default: 'Call 999, then make sure reception is aware.' },
       {
@@ -54,27 +56,14 @@ export const VISITOR_SECTIONS = [
         label: 'First aid',
         hint: 'Where the first aid room and kits are.',
         default:
-          'The First Aid Room is on Level 1, in the central core by the lifts.\nFirst aiders and first aid kit locations are listed on notice boards throughout the building.',
+          'The First Aid Room is on Level 1, on the west side of the building, opposite 153 Pembroke and 152 Sensory Room.\nFirst aiders and first aid kit locations are listed on notice boards throughout the building.',
       },
-      { key: 'defibrillator', label: 'Defibrillator (AED)', hint: 'Where the nearest defibrillator is.', default: 'Ground floor, near reception.' },
+      { key: 'defibrillator', label: 'Defibrillator (AED)', hint: 'Where the nearest defibrillator is.', default: 'Level 0, opposite the IT Hub.' },
       {
         key: 'fireMarshals',
         label: 'Fire marshals',
         hint: 'How to find a fire marshal.',
         default: 'Fire marshal contacts are on notice boards throughout the building.',
-      },
-      {
-        key: 'construction',
-        label: 'Construction work',
-        hint: 'Building work on or near the site.',
-        default:
-          'Phase Two is still being built. Follow the safety signs, keep out of construction zones, and stay on the marked pavements and walkways.',
-      },
-      {
-        key: 'electrical',
-        label: 'Heaters and chargers',
-        hint: 'Rules for personal electrical items.',
-        default: "Personal heaters aren't allowed. Phone chargers are fine, but please don't leave personal devices charging overnight.",
       },
     ],
   },
@@ -82,32 +71,27 @@ export const VISITOR_SECTIONS = [
     id: 'access',
     title: 'Access and opening hours',
     fields: [
-      {
-        key: 'reception',
-        label: 'Reception',
-        hint: 'Where reception is.',
-        default: 'Ground floor (Level 0). Need help? Visit the team at reception.',
-      },
+      { key: 'reception', label: 'Reception', hint: 'Where reception is.', default: 'Level 0. Need help? Visit the team at reception.' },
       {
         key: 'hours',
         label: 'Opening hours',
-        hint: 'Core hours and when security is on site.',
+        hint: 'Core hours, security hours and when the building is closed.',
         default:
-          'Core hours: 8am–5pm, Monday to Friday.\nSecurity is on site 7am–7pm.\nOut of hours, use the support number displayed in reception.',
+          'Core hours: 8am–5pm, Monday to Friday.\nSecurity is on site 7am–7pm. Outside 7am–7pm, access to the restaurant and offices is prohibited.\nFor out-of-hours support, call the number displayed in reception.',
       },
       {
         key: 'entry',
         label: 'Getting in',
         hint: 'Doors, turnstiles and passes.',
-        default: 'The front door and the turnstile are secure. You need your pass at both.',
+        default:
+          "The front door and turnstiles are protected by the Verkada access system, and you need to present your card at both.\n**Always swipe in and out, and don't tailgate.** It keeps our live occupancy count as accurate as possible, so fire marshals can account for everyone.",
       },
       {
-        key: 'loneWorking',
-        label: 'Working early or late',
-        hint: 'What to do when working alone.',
-        default: 'Working before 7am or after 7pm? Let your line manager and the Workplace Experience team know.',
+        key: 'wifi',
+        label: 'Guest Wi-Fi',
+        hint: 'Network name and how to get access.',
+        default: '[How to connect to guest Wi-Fi](https://aveva.oak.com/6a7825f7-f197-4e36-840f-57abb61a8df1)',
       },
-      { key: 'wifi', label: 'Guest Wi-Fi', hint: 'Network name and how to get access.', default: '' },
     ],
   },
   {
@@ -115,41 +99,52 @@ export const VISITOR_SECTIONS = [
     title: 'Getting here',
     fields: [
       {
+        key: 'driving',
+        label: 'Driving',
+        hint: 'Address and links for sat-navs and map apps.',
+        default: `**${ADDRESS}**\n[Directions in Google Maps](${LINKS.googleMaps})\nwhat3words: [///flash.menu.torch](${LINKS.what3words})`,
+      },
+      {
         key: 'parking',
         label: 'Car park',
         hint: 'Spaces, barrier times and rules.',
-        default:
-          '122 spaces in Phase One, plus 3 EV charging spaces and 3 accessible spaces.\nThe barrier is open 7am–7pm, Monday to Friday. For access outside these hours, ask Workplace Experience for a fob.\nArriving after 9am? Consider parking off site or using public transport.',
-      },
-      {
-        key: 'evCharging',
-        label: 'EV charging',
-        hint: 'EV spaces and how to share them.',
-        default: `3 charging spaces. [Check in on the EV charging page](charging.html) and join the [Cambridge Science Park EV Community](${LINKS.evCommunity}) on Teams.`,
-      },
-      {
-        key: 'motorcycles',
-        label: 'Motorcycles',
-        hint: 'Where motorcycles park.',
-        default: "There's no dedicated motorcycle parking. Please use a standard bay.",
+        default: `122 spaces, [3 EV charging bays](charging.html) and 3 accessible bays in Phase One. No dedicated motorcycle parking.\nBarriers are open 7am–7pm, Monday to Friday. Access outside these hours needs prior approval from ${WPE}.`,
       },
       {
         key: 'cycling',
         label: 'Cycling',
         hint: 'Bike parking, sheds and repairs.',
-        default: `Nearly 200 bike spaces, in the car park and two secure cycle sheds. Ask Workplace Experience for a fob for the sheds and the external shower block.\nThe larger shed has the shower block and 45 lockers for semi-permanent storage.\nThe smaller shed has basic tools: a pump, wrenches, Allen keys and screwdrivers.\nRepairs: [Park Cycle Hub](${LINKS.cycleHub}), next to the Bradfield Centre, open 8am–5pm.`,
+        default: `Nearly 200 bike spaces, in the car park and two secure cycle sheds (fob from ${WPE}). The sheds have a shower block, 45 lockers and basic tools.\nRepairs: [Park Cycle Hub](${LINKS.cycleHub}), next to the Bradfield Centre.`,
       },
       {
         key: 'train',
         label: 'Train',
         hint: 'Nearest station.',
-        default: `[Cambridge North](${LINKS.cambridgeNorth}) is a 10-minute walk.\nThe [Science Park shuttle bus](${LINKS.shuttle}) runs between the station and the Park.`,
+        default: `**Closest train station: [Cambridge North](${LINKS.cambridgeNorth})**\nA 10-minute walk, or take the [Science Park shuttle bus](${LINKS.shuttle}).`,
       },
       {
         key: 'bus',
-        label: 'Bus and Park & Ride',
-        hint: 'Bus stops and Park & Ride.',
-        default: `There are bus stops at both ends of the Park, and the main Guided Busway stop is a 200m walk.\n[Milton Park & Ride](${LINKS.parkAndRide}) is about 5 minutes away by bus.`,
+        label: 'Bus',
+        hint: 'Nearest bus stops.',
+        default: '**Closest stop: Science Park, on the Guided Busway**\nA 200m walk. There are also bus stops at both ends of the Park.',
+      },
+      {
+        key: 'parkAndRide',
+        label: 'Park & Ride',
+        hint: 'Nearest Park & Ride.',
+        default: `**Closest Park & Ride: [Milton Park & Ride](${LINKS.parkAndRide})**\nAbout 5 minutes away by bus.`,
+      },
+    ],
+  },
+  {
+    id: 'park',
+    title: 'Around the Park',
+    fields: [
+      {
+        key: 'shuttle',
+        label: 'Shuttle bus',
+        hint: 'The Science Park shuttle.',
+        default: `The [Science Park shuttle bus](${LINKS.shuttle}) runs between Cambridge North station and the Park.`,
       },
       {
         key: 'scooters',
@@ -159,9 +154,27 @@ export const VISITOR_SECTIONS = [
       },
       {
         key: 'aroundPark',
-        label: 'Around the Park',
+        label: 'Amenities map',
         hint: 'Finding your way around Cambridge Science Park.',
         default: `Use the [Cambridge Science Park amenities map](${LINKS.amenitiesMap}) to find your way around.`,
+      },
+      {
+        key: 'parkAmenities',
+        label: 'Park amenities',
+        hint: 'Food, shops and services on the Park.',
+        default: `See [what's available on the Park](${LINKS.parkAmenities}).`,
+      },
+      {
+        key: 'lifeOnPark',
+        label: 'Life on the Park',
+        hint: 'News and events on the Park.',
+        default: `News and events from [Life on the Park](${LINKS.lifeOnPark}).`,
+      },
+      {
+        key: 'sciencePark',
+        label: 'Cambridge Science Park',
+        hint: 'The Science Park website.',
+        default: `[cambridgesciencepark.co.uk](${LINKS.sciencePark})`,
       },
     ],
   },
@@ -180,7 +193,7 @@ export const VISITOR_SECTIONS = [
         key: 'accessibleParking',
         label: 'Accessible parking',
         hint: 'Accessible spaces and how to use them.',
-        default: '3 accessible spaces outside the building. Contact Workplace Experience to use one.',
+        default: `3 accessible spaces outside the building. Contact ${WPE} to use one.`,
       },
       {
         key: 'accessibleShowers',
@@ -206,7 +219,7 @@ export const VISITOR_SECTIONS = [
         hint: 'Facilities, fobs, lockers and events.',
         default: `Email [WPE.Cambridge@aveva.com](${LINKS.wpeEmail}) or [raise a support ticket](${LINKS.wpeTicket}).`,
       },
-      { key: 'itHub', label: 'IT Hub', hint: 'Where to get IT help.', default: 'Room 001 on the ground floor, for help with IT and printing.' },
+      { key: 'itHub', label: 'IT Hub', hint: 'Where to get IT help.', default: 'Level 0, for help with IT and printing.' },
       {
         key: 'bookingHelp',
         label: 'Booking help',
@@ -239,7 +252,7 @@ const normalise = (v) => String(v).replace(/\r\n?/g, '\n').trim();
 export const emptyVisitor = () => ({ fields: Object.fromEntries(VISITOR_FIELDS.map((f) => [f.key, ''])), updatedAt: null });
 
 // Validates untrusted input. Unknown keys are dropped; text stays plain text (escaped when shown).
-// A value that matches the guide's wording is stored as blank, so it follows future guide updates.
+// A value that matches the default wording is stored as blank, so it follows future updates.
 export function cleanVisitor(input, now = Date.now()) {
   const out = emptyVisitor();
   for (const f of VISITOR_FIELDS) {
@@ -261,7 +274,7 @@ export function loadVisitor(stored) {
   }
 }
 
-// What to show for each field: the admin's text, or the guide's wording.
+// What to show for each field: the admin's text, or the default wording.
 export const visitorText = (data) => Object.fromEntries(VISITOR_FIELDS.map((f) => [f.key, data?.fields?.[f.key] || f.default]));
 
 const esc = (v) =>
@@ -269,16 +282,25 @@ const esc = (v) =>
 
 // Only web, email and same-site page links. Anything else (javascript:, data:…) stays as text.
 const SAFE_HREF = /^(?:https?:\/\/[^\s<>]+|mailto:[^\s<>]+|[\w-]+\.html(?:#[\w-]+)?|#[\w-]+)$/i;
+export const NEW_TAB_NOTE = '<span class="visually-hidden"> (opens in a new tab)</span>';
 
-// Plain text → safe HTML: [label](url) links, tap-to-call phone numbers and line breaks.
+// Web links open in a new tab; email and same-site links don't.
+const anchor = (href, label) =>
+  /^https?:/i.test(href)
+    ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}${NEW_TAB_NOTE}</a>`
+    : `<a href="${href}">${label}</a>`;
+
+// Plain text → safe HTML: [label](url) links, **bold**, tap-to-call phone numbers and line breaks.
 export function richText(text) {
   const links = [];
   return esc(text)
     .replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (m, label, href) => {
       if (!SAFE_HREF.test(href)) return m;
-      links.push(`<a href="${href}">${label}</a>`);
+      links.push(anchor(href, label));
       return `\u0000${links.length - 1}\u0000`;
     })
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/^<strong>/, '<strong class="lead">')
     .replace(/(\+?\d[\d ]{7,}\d)/g, (m) => `<a href="tel:${m.replace(/\s/g, '')}">${m}</a>`)
     .replace(/\u0000(\d+)\u0000/g, (_, i) => links[i])
     .replace(/\n/g, '<br>');

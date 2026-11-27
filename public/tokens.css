@@ -35,6 +35,8 @@
   --admin-sign: #C9D1DC;
   --facilities-sign: #6EA8FF;
   --food-sign: #FF6FA8;
+  --hazard: #F5B700;
+  --hazard-ink: #111820;
 
   --ok: #0B7A52;   --ok-bg: #DDF3E8;
   --busy: #2648C9; --busy-bg: #E3E8FA;
@@ -74,6 +76,8 @@
   --visitor-sign: #FF8A5B;
   --facilities-sign: #7FB0FF;
   --food-sign: #FF7FB2;
+  --hazard: #F5BE4B;
+  --hazard-ink: #2A2F36;
 
   --ok: #3CDB98;   --ok-bg: rgb(60 219 152 / 13%);
   --busy: #8AA6FF; --busy-bg: rgb(138 166 255 / 15%);

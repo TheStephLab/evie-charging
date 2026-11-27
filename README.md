@@ -7,7 +7,7 @@ A small, fast information hub for 101 Cambridge Science Park. It has no accounts
 | Page | What it's for |
 |---|---|
 | **Home** (`index.html`) | Directory of every area with live charger availability, a **Book a desk or room** link to [Microsoft Places](https://places.cloud.microsoft/places/), grouped **useful links** (workplace help, hosting guests, getting here, the Park), and "Good to know" facts |
-| **Visitor centre** (`visitor.html`) | "If the fire alarm sounds" steps, safety (alarm test, assembly point, exits, first aid, AED), access and opening hours, getting here (car park, EV, cycling, train, bus, e-scooters), hosting guests (Verkada and internal visitors), accessibility and contacts. Printable. |
+| **Visitor centre** (`visitor.html`) | A construction-work banner, "If the fire alarm sounds" steps, safety (alarm test, assembly point, exits, first aid, AED, fire marshals), access and opening hours (including Verkada card entry and guest Wi-Fi), getting here (driving with address, Google Maps and what3words, car park, cycling, train, bus, Park & Ride), around the Park (shuttle, Voi, amenities, Life on the Park), hosting guests (Verkada and internal visitors), accessibility and contacts. Printable. |
 | **Facilities** (`facilities.html`) | Showers and drying areas, lockers, print areas, drink stations, games area, Parents', Sensory and Prayer rooms, First Aid Room, IT Hub, bookable spaces, and a floor guide with neighbourhoods and room names |
 | **BYTE+BREW** (`restaurant.html`) | The on-site restaurant: what's served, allergen advice, Kanpla app offers and sign-up (Location ID **FJQU**), and meeting catering. No menu, as it changes. |
 | **EV charging** (`charging.html`) | EVIE: check in to a charger and the fair queue, plus the EV Community Teams channel. Details below. |
@@ -15,17 +15,18 @@ A small, fast information hub for 101 Cambridge Science Park. It has no accounts
 
 ## Content source
 
-All site information comes from *Your Cambridge Science Park: 101, Phase One* (v1, 23 November 2026), including its links (Microsoft Places, Verkada, Workplace Experience, the EV Community Teams channel, transport and Cambridge Science Park pages). Links marked **AVEVA sign-in** need a work account.
+All site information comes from *Your Cambridge Science Park: 101, Phase One* (v1, 23 November 2026), including its links (Microsoft Places, Verkada, Workplace Experience, the EV Community Teams channel, transport and Cambridge Science Park pages), plus later updates from the site team (assembly point, first aid and AED locations, opening-hours access, card entry, directions and guest Wi-Fi). Links marked **AVEVA sign-in** need a work account.
+
+Site conventions: floors are always **Level 0** and **Level 1**, every mention of contacting Workplace Experience links to its mailbox, and external links open in a new tab (with a hidden "opens in a new tab" note for screen readers and a small ↗ on inline links).
 
 Individual colleagues' names and email addresses from the guide are deliberately left out, because this site and its repository are public. The site uses the Workplace Experience team mailbox and ticket link instead.
 
 ## Visitor centre content
 
-The Visitor centre and the home page's "Good to know" facts start with the **guide's wording**. You can override any topic in **Settings → Visitor centre**.
+The Visitor centre and the home page's "Good to know" facts start with the **default wording** in `src/visitor.js`. You can override any topic in **Settings → Visitor centre**.
 
-- Each topic is plain text, up to 1,000 characters. Line breaks are kept, `[label](https://…)` becomes a link (only `https`, `http`, `mailto` and same-site pages), and phone numbers become tap-to-call links.
-- Clear a topic to go back to the guide's wording. Saving the guide's wording unchanged stores nothing, so future guide updates come through.
-- Guest Wi-Fi isn't in the guide, so it shows "Not added yet. Please ask at reception." until you fill it in.
+- Each topic is plain text, up to 1,000 characters. Line breaks are kept, `[label](https://…)` becomes a link (only `https`, `http`, `mailto` and same-site pages; web links open in a new tab), `**text**` is bold (bold at the very start is shown as a headline, e.g. "Closest train station"), and phone numbers become tap-to-call links.
+- Clear a topic to go back to the default wording. Saving the default wording unchanged stores nothing, so future updates come through.
 - On the server, overrides are saved to `data/visitor.json`. They survive restarts and the midnight reset.
 - Anyone can read it through `GET /api/visitor`. Saving uses `POST /api/admin/visitor` and needs the admin token.
 - In demo mode it's stored in your browser.
